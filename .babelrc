@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    ["transform-strict-mode", {
+      "strict": true
+    }],
+    ["transform-es2015-modules-commonjs", {
+        "allowTopLevelThis": false,
+        "strict": true,
+        "loose": false
+      }],
+      "syntax-flow",
+      "transform-flow-strip-types"
+  ]
+}

@@ -1,0 +1,72 @@
+.hex {
+  position: absolute;
+  margin: 1em auto;
+  width: 1.5em; height: 2.598em;
+  border-radius: 0.3em / .15em;
+  opacity: 1;
+  transform: rotate(30deg);
+  box-shadow: 1px 1px 2px #888888;
+
+}
+.hex:before, 
+.hex:after {
+  position: absolute;
+  width: inherit; height: inherit;
+  border-radius: inherit;
+  background: inherit;
+  content: '';
+}
+.hex:before {
+  transform: rotate(60deg);
+}
+.hex:after {
+  transform: rotate(-60deg);
+}
+
+.hex.unoccupied {
+  background-color: #404040;
+}
+
+.hex.occupied {
+  box-shadow: 1px 1px 2px #404040;
+}
+
+.hex.green {
+  background-color: #6eda92;
+}
+
+.hex.purple {
+  background-color: #8588f8;
+}
+
+.hex.yellow {
+  background-color: #f7d685;
+}
+
+.hex.yellowgreen {
+  background-color: #c9ec7d;
+}
+
+.hex.orange {
+  background-color: #ef9e6c;
+}
+
+.hex.pink {
+  background-color: #f885b0;
+}
+
+.tray {
+  position: absolute;
+  top: 450px;
+  left: 45px;
+  min-width: 420px;
+  min-height: 150px;
+  background-color: rgba(128,128,128,0.2);
+  border-radius: 20px;
+}
+
+.piece {
+  position: absolute;
+  top: 15px;
+  transform: scale(0.55);
+}

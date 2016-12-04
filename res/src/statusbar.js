@@ -1,5 +1,7 @@
 import {Renderable} from 'renderable.js';
 
+import {makeDiv} from 'domutils.js';
+
 import type {Loggable} from 'renderable.js';
 
 export class StatusBar extends Renderable {
@@ -8,15 +10,15 @@ export class StatusBar extends Renderable {
     // ...
   }
 
-  getNode(): Node {
-    return document.createTextNode("Status Bar");
+  getNode(): HTMLElement {
+    return makeDiv(null, 'statusbar', 'Status Bar');
   }
 
   getKey(): ?Loggable {
-    return "statttttsss bar";
+    return 'statttttsss bar';
   }
 
   log(): Loggable {
-    return "status bar";
+    return 'status bar';
   }
-};
+}

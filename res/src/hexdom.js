@@ -10,8 +10,8 @@ export class HexDOM {
     this._document = document;
   }
 
-  getNode(nodeName: string): Node {
-    throw "abstract";
+  getNode(nodeName: string): HTMLElement {
+    throw 'abstract';
   }
 
   setNode(node: Node): void {

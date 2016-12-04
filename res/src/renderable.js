@@ -1,5 +1,3 @@
-import {MemoNode} from 'memonode.js';
-
 export type Loggable =
   | string
   | number
@@ -9,14 +7,9 @@ export type Loggable =
 
 export class Renderable {
   _children: Renderable[];
-  _node: MemoNode;
 
   constructor(children: ?Renderable[]) {
     this._children = children || [];
-    this._node = new MemoNode(
-      this.getPlaceholder(),
-      this.getKey(),
-    );
   }
 
   addChild(child: Renderable) {
@@ -29,25 +22,15 @@ export class Renderable {
     }
   }
 
-  render(): Node {
-    return this._node.update(this, this.getKey());
+  render(): HTMLElement {
+    throw 'abstract';
   }
 
-  getPlaceholder(): Node {
-    let div = document.createElement('div');
-    div.className = this.constructor.name;
-    return div;
-  }
-
-  getNode(): Node {
-    throw "abstract";
-  }
-
-  getKey(): ?Loggable {
-    throw "abstract";
+  getNode(): HTMLElement {
+    throw 'abstract';
   }
 
   log(): Loggable {
-    throw "abstract";
+    throw 'abstract';
   }
 }

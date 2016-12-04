@@ -11,6 +11,14 @@ export class PiecePlacement {
     this._placement = placement;
   }
 
+  get piece(): Piece {
+    return this._piece;
+  }
+
+  get placement(): Point {
+    return this._placement;
+  }
+
   *points(): Iterator<Point> {
     for (let offset of this._piece.offsets()) {
       yield this._placement.plus(offset);

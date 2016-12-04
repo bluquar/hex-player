@@ -21,4 +21,12 @@ export class MoveStack {
       () => [move, popped],
     );
   }
+
+  isEmpty(): boolean {
+    return this._moves.length === 0;
+  }
+
+  flush(): void {
+    this._moves = [];
+  }
 };

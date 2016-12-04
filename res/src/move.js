@@ -1,13 +1,30 @@
+import {Assert} from 'debug.js';
 import {Board} from 'board.js';
 import {PiecePlacement} from 'pieceplacement.js';
+import {Line} from 'line.js';
+
+import type {LineClearHistory} from 'line.js';
+import type {PieceColor} from 'piecedefinitions.js';
+
+import {
+  checkAllLines,
+  clearLines,
+  unclearLines,
+} from 'line.js';
 
 export class Move {
   _piecePlacement: PiecePlacement;
   _applied: boolean;
+  _linesCalculated: boolean;
+  _linesAreCleared: boolean;
+  _lines: LineClearHistory[];
 
   constructor(piecePlacement: PiecePlacement) {
     this._piecePlacement = piecePlacement;
     this._applied = false;
+    this._linesCalculated = false;
+    this._linesAreCleared = false;
+    this._lines = [];
   }
 
   get piecePlacement(): PiecePlacement {
@@ -15,11 +32,31 @@ export class Move {
   }
 
   clearLines(board: Board): void {
-    // TODO
+    Assert(
+      !this._linesAreCleared,
+      'clearLines called on move with lines already cleared',
+      () => this.log(),
+    );
+    if (!this._linesCalculated) {
+      this._lines = checkAllLines(board);
+      this._linesCalculated = true;
+    }
+    clearLines(this._lines, board);
+    this._linesAreCleared = true;
   }
 
   unclearLines(board: Board): void {
-    // TODO
+    Assert(
+      this._linesAreCleared,
+      'unclearLines called on move with lines not cleared',
+      () => this.log(),
+    );
+    unclearLines(this._lines, board);
+    this._linesAreCleared = false;
+  }
+
+  getScoreIncrease(): number {
+    return 0;
   }
 
   setApplied(applied: boolean): void {

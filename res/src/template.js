@@ -8,15 +8,11 @@ export class Template extends Renderable {
     // ...
   }
 
-  getNode(): Node {
-    throw "abstract";
-  }
-
-  getKey(): ?Loggable {
-    throw "abstract";
+  render(): HTMLElement {
+    throw 'abstract';
   }
 
   log(): Loggable {
-    throw "abstract";
+    throw 'abstract';
   }
 };

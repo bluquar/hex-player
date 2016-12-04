@@ -15,16 +15,19 @@ export class Piece extends Renderable {
   _offsets: Offset[];
   _color: PieceColor;
   _alias: string;
+  _code: string;
 
   constructor(
     offsets: Offset[], 
     color: PieceColor, 
     alias: string,
+    code: string,
   ) {
     super();
     this._offsets = offsets;
     this._color = color;
     this._alias = alias;
+    this._code = code;
 
     for (let offset of this._offsets) {
       // const pointOnBoard = ORIGIN.plus(offset);
@@ -42,6 +45,10 @@ export class Piece extends Renderable {
     return this._color;
   }
 
+  get code(): string {
+    return this._code;
+  }
+
   *offsets(): Iterator<Offset> {
     for (let offset of this._offsets) {
       yield offset;
@@ -52,17 +59,13 @@ export class Piece extends Renderable {
     return new PiecePlacement(this, anchor);
   }
 
-  getNode(): Node {
+  render(): HTMLElement {
     let node = document.createElement('div');
     node.className = 'piece';
     for (let child of this.children()) {
       node.appendChild(child.render());
     }
     return node;
-  }
-
-  getKey(): ?Loggable {
-    return this.log();
   }
 
   log(): Loggable {

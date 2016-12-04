@@ -1,3 +1,3 @@
-import {Point} from 'point.js';
+import {RowColPair} from 'rowcolpair.js';
 
-export class GraphicPoint extends Point {}
+export class GraphicPoint extends RowColPair {}

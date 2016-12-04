@@ -1,3 +1,5 @@
+import {Assert} from 'debug.js';
+import {Move} from 'move.js';
 import {PieceDefinitions} from 'piecedefinitions.js';
 import {Piece} from 'piece.js';
 import {Renderable} from 'renderable.js';
@@ -20,7 +22,43 @@ export class Tray extends Renderable {
     return PieceDefinitions.randomPiece();
   }
 
-  getNode(): Node {
+  forEachPiece(
+    callback: (piece: Piece) => void,
+  ): void {
+    this._pieces.forEach(callback);
+  }
+
+  isValidCommit(move: Move) {
+    const movePiece = move.piecePlacement.piece;
+    for (let trayPiece of this._pieces) {
+      if (trayPiece === movePiece) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  _replacePiece(i: number): void {
+    this._pieces[i] = this._getNextPiece(i);
+  }
+
+  commitMove(move: Move): void {
+    const movePiece = move.piecePlacement.piece;
+    let ii = -1;
+    this._pieces.forEach((trayPiece: Piece, i: number) => {
+      if (movePiece === trayPiece) {
+        ii = i;
+      }
+    });
+    Assert(
+      ii !== -1,
+      'Cannot commit invalid move to tray',
+      () => this.log(),
+    );
+    this._replacePiece(ii);
+  }
+
+  render(): HTMLElement {
     let node = document.createElement('div');
     node.className = 'tray';
 
@@ -32,10 +70,6 @@ export class Tray extends Renderable {
     return node;
   }
 
-  getKey(): ?Loggable {
-    return this.log();
-  }
-
   log(): Loggable {
     if (!this._pieces) {
       return 'uninitialized';
@@ -43,5 +77,11 @@ export class Tray extends Renderable {
     return this._pieces.map(
       piece => piece.log()
     );
+  }
+
+  encode(): string {
+    return this._pieces.map(piece =>
+      piece.code
+    ).join('');
   }
 };

@@ -56,14 +56,14 @@
 	function main() {
 	  var controller = new _controller.Controller();
 	  controller.init();
-	  console.log(controller.log());
 	  controller.attach_to_dom(new _standaloneDom.StandaloneDOM(_document), function () {
-	    console.log("Attached");
+	    console.log('Attached');
 	  });
+	  console.log(controller.log());
 	  _window.c = controller;
 	}
 	
-	document.addEventListener("DOMContentLoaded", function (event) {
+	document.addEventListener('DOMContentLoaded', function (event) {
 	  return main();
 	});
 
@@ -94,10 +94,6 @@
 	
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 	
-	var _get2 = __webpack_require__(80);
-	
-	var _get3 = _interopRequireDefault(_get2);
-	
 	var _inherits2 = __webpack_require__(84);
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
@@ -106,11 +102,15 @@
 	
 	var _gamestate = __webpack_require__(107);
 	
+	var _gamestateviewer = __webpack_require__(134);
+	
 	var _hexdom = __webpack_require__(124);
 	
 	var _renderable = __webpack_require__(93);
 	
 	var _statusbar = __webpack_require__(125);
+	
+	var _domutils = __webpack_require__(128);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -127,7 +127,7 @@
 	    value: function init() {
 	      this._statusBar = new _statusbar.StatusBar();
 	      this._gameState = new _gamestate.GameState();
-	      this._aiController = new _aicontroller.AIController();
+	      this._aiController = new _aicontroller.AIController(new _gamestateviewer.GameStateViewer(this._gameState));
 	    }
 	  }, {
 	    key: 'attach_to_dom',
@@ -144,30 +144,22 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var node = (0, _get3.default)(Controller.prototype.__proto__ || (0, _getPrototypeOf2.default)(Controller.prototype), 'render', this).call(this);
-	      this._dom.setNode(node);
-	      return node;
-	    }
-	  }, {
-	    key: 'getNode',
-	    value: function getNode() {
-	      var div = document.createElement('div');
-	      div.className = "controller";
-	      if (this._gameState) {
-	        div.appendChild(this._gameState.render());
-	      }
-	      return div;
-	    }
-	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
+	      var elem = (0, _domutils.makeDiv)(null, 'controller');
+	      var gshook = (0, _domutils.makeDiv)(null, 'gshook');
+	      var aihook = (0, _domutils.makeDiv)(null, 'aihook');
+	      gshook.appendChild(this._gameState.render(gshook));
+	      aihook.appendChild(this._aiController.render(aihook));
+	      elem.appendChild(gshook);
+	      elem.appendChild(aihook);
+	      this._dom.setNode(elem);
+	      return elem;
 	    }
 	  }, {
 	    key: 'log',
 	    value: function log() {
 	      return {
-	        'Game State': this.game ? this.game.log() : 'uninitialized'
+	        'Game State': this.game ? this.game.log() : 'uninitialized',
+	        'AI Controller': this.ai ? this.ai.log() : 'uninitialized'
 	      };
 	    }
 	  }, {
@@ -1607,79 +1599,10 @@
 	__webpack_require__(68)('observable');
 
 /***/ },
-/* 80 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	exports.__esModule = true;
-	
-	var _getPrototypeOf = __webpack_require__(2);
-	
-	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-	
-	var _getOwnPropertyDescriptor = __webpack_require__(81);
-	
-	var _getOwnPropertyDescriptor2 = _interopRequireDefault(_getOwnPropertyDescriptor);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	exports.default = function get(object, property, receiver) {
-	  if (object === null) object = Function.prototype;
-	  var desc = (0, _getOwnPropertyDescriptor2.default)(object, property);
-	
-	  if (desc === undefined) {
-	    var parent = (0, _getPrototypeOf2.default)(object);
-	
-	    if (parent === null) {
-	      return undefined;
-	    } else {
-	      return get(parent, property, receiver);
-	    }
-	  } else if ("value" in desc) {
-	    return desc.value;
-	  } else {
-	    var getter = desc.get;
-	
-	    if (getter === undefined) {
-	      return undefined;
-	    }
-	
-	    return getter.call(receiver);
-	  }
-	};
-
-/***/ },
-/* 81 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(82), __esModule: true };
-
-/***/ },
-/* 82 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(83);
-	var $Object = __webpack_require__(15).Object;
-	module.exports = function getOwnPropertyDescriptor(it, key){
-	  return $Object.getOwnPropertyDescriptor(it, key);
-	};
-
-/***/ },
-/* 83 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
-	var toIObject                 = __webpack_require__(49)
-	  , $getOwnPropertyDescriptor = __webpack_require__(76).f;
-	
-	__webpack_require__(13)('getOwnPropertyDescriptor', function(){
-	  return function getOwnPropertyDescriptor(it, key){
-	    return $getOwnPropertyDescriptor(toIObject(it), key);
-	  };
-	});
-
-/***/ },
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
 /* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1803,6 +1726,10 @@
 	});
 	exports.AIController = undefined;
 	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
+	
 	var _getPrototypeOf = __webpack_require__(2);
 	
 	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -1823,33 +1750,147 @@
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
 	
+	var _graphicpoint = __webpack_require__(111);
+	
 	var _renderable = __webpack_require__(93);
 	
+	var _strategystore = __webpack_require__(129);
+	
+	var _domutils = __webpack_require__(128);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var DEBUG_MODE = true;
 	
 	var AIController = exports.AIController = function (_Renderable) {
 	  (0, _inherits3.default)(AIController, _Renderable);
 	
-	  function AIController() {
+	  function AIController(gameView) {
 	    (0, _classCallCheck3.default)(this, AIController);
-	    return (0, _possibleConstructorReturn3.default)(this, (AIController.__proto__ || (0, _getPrototypeOf2.default)(AIController)).call(this));
-	    // ...
+	
+	    var _this = (0, _possibleConstructorReturn3.default)(this, (AIController.__proto__ || (0, _getPrototypeOf2.default)(AIController)).call(this));
+	
+	    _this._gameView = gameView;
+	    return _this;
 	  }
 	
 	  (0, _createClass3.default)(AIController, [{
-	    key: 'getNode',
-	    value: function getNode() {
-	      return document.createTextNode("AI Controller");
+	    key: 'render',
+	    value: function render() {
+	      var text = document.createTextNode('AI Controller');
+	      var header = document.createElement('h1');
+	      header.appendChild(text);
+	      var div = (0, _domutils.makeDiv)([], 'aicontroller', null, new _graphicpoint.GraphicPoint(50, 500));
+	      div.appendChild(header);
+	      div.appendChild(this._renderStrategySelector());
+	      div.appendChild(this._renderStrategyControls());
+	      this._elem = div;
+	
+	      this._setStrategyConfig(_strategystore.StrategyStore.getDefaultStrategyConfig());
+	      return div;
 	    }
 	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return "ayy controller";
+	    key: '_setStrategyConfig',
+	    value: function _setStrategyConfig(strategyConfig) {
+	      if (this._elem == null) return;
+	      if (!this._strategyHook) {
+	        this._strategyHook = document.createElement('div');
+	        if (this._elem != null) {
+	          this._elem.appendChild(this._strategyHook);
+	        }
+	      }
+	
+	      this._strategyConfig = strategyConfig;
+	      this._strategy = strategyConfig.getStrategy(this._strategyHook, DEBUG_MODE);
+	      this._showStrategy();
+	    }
+	  }, {
+	    key: '_showStrategy',
+	    value: function _showStrategy() {
+	      if (this._strategy != null) {
+	        this._strategy.show(this._gameView);
+	      }
+	    }
+	  }, {
+	    key: '_makeMove',
+	    value: function _makeMove() {
+	      if (this._strategy == null) {
+	        return;
+	      }
+	      var move = this._strategy.chooseMove(this._gameView);
+	      this._gameView.commitMove(move);
+	      this._showStrategy();
+	    }
+	  }, {
+	    key: '_renderStrategyControls',
+	    value: function _renderStrategyControls() {
+	      var controls = (0, _domutils.makeDiv)(['aicontrols'], null, null, null);
+	      controls.appendChild(this._renderMakeMoveControl());
+	      return controls;
+	    }
+	  }, {
+	    key: '_renderMakeMoveControl',
+	    value: function _renderMakeMoveControl() {
+	      var _this2 = this;
+	
+	      var button = document.createElement('button');
+	      button.type = 'button';
+	      button.appendChild(document.createTextNode('Make Move'));
+	      button.onclick = function () {
+	        return _this2._makeMove();
+	      };
+	      return button;
+	    }
+	  }, {
+	    key: '_renderStrategySelector',
+	    value: function _renderStrategySelector() {
+	      var _this3 = this;
+	
+	      var select = document.createElement('select');
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(_strategystore.StrategyStore.strategyConfigs()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var strategyConfig = _step.value;
+	
+	          var name = strategyConfig.name;
+	          var option = document.createElement('option');
+	          option.value = name;
+	          option.appendChild(document.createTextNode(name));
+	          select.appendChild(option);
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      ;
+	      select.onchange = function () {
+	        var strategyConfig = _strategystore.StrategyStore.getByName(select.value);
+	        if (strategyConfig != null) {
+	          _this3._setStrategyConfig(strategyConfig);
+	        }
+	      };
+	      return select;
 	    }
 	  }, {
 	    key: 'log',
 	    value: function log() {
-	      return "ai controller";
+	      return {
+	        strategy: this._strategyConfig == null ? null : this._strategyConfig.name
+	      };
 	    }
 	  }]);
 	  return AIController;
@@ -1884,8 +1925,6 @@
 	
 	var _createClass3 = _interopRequireDefault(_createClass2);
 	
-	var _memonode = __webpack_require__(103);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var Renderable = exports.Renderable = function () {
@@ -1893,7 +1932,6 @@
 	    (0, _classCallCheck3.default)(this, Renderable);
 	
 	    this._children = children || [];
-	    this._node = new _memonode.MemoNode(this.getPlaceholder(), this.getKey());
 	  }
 	
 	  (0, _createClass3.default)(Renderable, [{
@@ -1975,29 +2013,17 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return this._node.update(this, this.getKey());
-	    }
-	  }, {
-	    key: 'getPlaceholder',
-	    value: function getPlaceholder() {
-	      var div = document.createElement('div');
-	      div.className = this.constructor.name;
-	      return div;
+	      throw 'abstract';
 	    }
 	  }, {
 	    key: 'getNode',
 	    value: function getNode() {
-	      throw "abstract";
-	    }
-	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      throw "abstract";
+	      throw 'abstract';
 	    }
 	  }, {
 	    key: 'log',
 	    value: function log() {
-	      throw "abstract";
+	      throw 'abstract';
 	    }
 	  }]);
 	  return Renderable;
@@ -2978,195 +3004,10 @@
 	};
 
 /***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.MemoNode = undefined;
-	
-	var _classCallCheck2 = __webpack_require__(28);
-	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(29);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
-	
-	var _deepEqual = __webpack_require__(104);
-	
-	var _deepEqual2 = _interopRequireDefault(_deepEqual);
-	
-	var _renderable = __webpack_require__(93);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var MemoNode = exports.MemoNode = function () {
-	  function MemoNode(node, key) {
-	    (0, _classCallCheck3.default)(this, MemoNode);
-	
-	    this._node = node;
-	    this._key = key;
-	  }
-	
-	  (0, _createClass3.default)(MemoNode, [{
-	    key: 'update',
-	    value: function update(renderable, key) {
-	      if (true) {
-	        this._node = renderable.getNode();
-	        this._key = key;
-	      }
-	      return this._node;
-	    }
-	  }]);
-	  return MemoNode;
-	}();
-
-/***/ },
-/* 104 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var pSlice = Array.prototype.slice;
-	var objectKeys = __webpack_require__(105);
-	var isArguments = __webpack_require__(106);
-	
-	var deepEqual = module.exports = function (actual, expected, opts) {
-	  if (!opts) opts = {};
-	  // 7.1. All identical values are equivalent, as determined by ===.
-	  if (actual === expected) {
-	    return true;
-	
-	  } else if (actual instanceof Date && expected instanceof Date) {
-	    return actual.getTime() === expected.getTime();
-	
-	  // 7.3. Other pairs that do not both pass typeof value == 'object',
-	  // equivalence is determined by ==.
-	  } else if (!actual || !expected || typeof actual != 'object' && typeof expected != 'object') {
-	    return opts.strict ? actual === expected : actual == expected;
-	
-	  // 7.4. For all other Object pairs, including Array objects, equivalence is
-	  // determined by having the same number of owned properties (as verified
-	  // with Object.prototype.hasOwnProperty.call), the same set of keys
-	  // (although not necessarily the same order), equivalent values for every
-	  // corresponding key, and an identical 'prototype' property. Note: this
-	  // accounts for both named and indexed properties on Arrays.
-	  } else {
-	    return objEquiv(actual, expected, opts);
-	  }
-	}
-	
-	function isUndefinedOrNull(value) {
-	  return value === null || value === undefined;
-	}
-	
-	function isBuffer (x) {
-	  if (!x || typeof x !== 'object' || typeof x.length !== 'number') return false;
-	  if (typeof x.copy !== 'function' || typeof x.slice !== 'function') {
-	    return false;
-	  }
-	  if (x.length > 0 && typeof x[0] !== 'number') return false;
-	  return true;
-	}
-	
-	function objEquiv(a, b, opts) {
-	  var i, key;
-	  if (isUndefinedOrNull(a) || isUndefinedOrNull(b))
-	    return false;
-	  // an identical 'prototype' property.
-	  if (a.prototype !== b.prototype) return false;
-	  //~~~I've managed to break Object.keys through screwy arguments passing.
-	  //   Converting to array solves the problem.
-	  if (isArguments(a)) {
-	    if (!isArguments(b)) {
-	      return false;
-	    }
-	    a = pSlice.call(a);
-	    b = pSlice.call(b);
-	    return deepEqual(a, b, opts);
-	  }
-	  if (isBuffer(a)) {
-	    if (!isBuffer(b)) {
-	      return false;
-	    }
-	    if (a.length !== b.length) return false;
-	    for (i = 0; i < a.length; i++) {
-	      if (a[i] !== b[i]) return false;
-	    }
-	    return true;
-	  }
-	  try {
-	    var ka = objectKeys(a),
-	        kb = objectKeys(b);
-	  } catch (e) {//happens when one is a string literal and the other isn't
-	    return false;
-	  }
-	  // having the same number of owned properties (keys incorporates
-	  // hasOwnProperty)
-	  if (ka.length != kb.length)
-	    return false;
-	  //the same set of keys (although not necessarily the same order),
-	  ka.sort();
-	  kb.sort();
-	  //~~~cheap key test
-	  for (i = ka.length - 1; i >= 0; i--) {
-	    if (ka[i] != kb[i])
-	      return false;
-	  }
-	  //equivalent values for every corresponding key, and
-	  //~~~possibly expensive deep test
-	  for (i = ka.length - 1; i >= 0; i--) {
-	    key = ka[i];
-	    if (!deepEqual(a[key], b[key], opts)) return false;
-	  }
-	  return typeof a === typeof b;
-	}
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports) {
-
-	exports = module.exports = typeof Object.keys === 'function'
-	  ? Object.keys : shim;
-	
-	exports.shim = shim;
-	function shim (obj) {
-	  var keys = [];
-	  for (var key in obj) keys.push(key);
-	  return keys;
-	}
-
-
-/***/ },
-/* 106 */
-/***/ function(module, exports) {
-
-	var supportsArgumentsClass = (function(){
-	  return Object.prototype.toString.call(arguments)
-	})() == '[object Arguments]';
-	
-	exports = module.exports = supportsArgumentsClass ? supported : unsupported;
-	
-	exports.supported = supported;
-	function supported(object) {
-	  return Object.prototype.toString.call(object) == '[object Arguments]';
-	};
-	
-	exports.unsupported = unsupported;
-	function unsupported(object){
-	  return object &&
-	    typeof object == 'object' &&
-	    typeof object.length == 'number' &&
-	    Object.prototype.hasOwnProperty.call(object, 'callee') &&
-	    !Object.prototype.propertyIsEnumerable.call(object, 'callee') ||
-	    false;
-	};
-
-
-/***/ },
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */,
 /* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -3199,9 +3040,17 @@
 	
 	var _board = __webpack_require__(108);
 	
+	var _graphicpoint = __webpack_require__(111);
+	
+	var _move = __webpack_require__(114);
+	
+	var _piece = __webpack_require__(116);
+	
 	var _renderable = __webpack_require__(93);
 	
 	var _tray = __webpack_require__(119);
+	
+	var _domutils = __webpack_require__(128);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3213,35 +3062,137 @@
 	
 	    var _this = (0, _possibleConstructorReturn3.default)(this, (GameState.__proto__ || (0, _getPrototypeOf2.default)(GameState)).call(this));
 	
+	    _this._score = 0;
 	    _this._board = new _board.Board();
 	    _this._tray = new _tray.Tray();
 	    return _this;
 	  }
 	
 	  (0, _createClass3.default)(GameState, [{
-	    key: 'getNode',
-	    value: function getNode() {
+	    key: 'gameIsOver',
+	    value: function gameIsOver() {
+	      // todo
+	      return false;
+	    }
+	  }, {
+	    key: 'hasUnknowns',
+	    value: function hasUnknowns() {
+	      // todo
+	      return false;
+	    }
+	  }, {
+	    key: 'withEachUnknownResolved',
+	    value: function withEachUnknownResolved(callback) {
+	      // todo
+	      return;
+	    }
+	  }, {
+	    key: 'withEachValidMoveApplied',
+	    value: function withEachValidMoveApplied(callback) {
+	      var _this2 = this;
+	
+	      this.forEachPieceInTray(function (piece) {
+	        _this2._board.withEachValidMoveApplied(function (move, scoreIncrease) {
+	          _this2._score += scoreIncrease;
+	          callback(move);
+	          _this2._score -= scoreIncrease;
+	        }, piece);
+	      });
+	    }
+	  }, {
+	    key: 'withMoveApplied',
+	    value: function withMoveApplied(move, callback) {
+	      var _this3 = this;
+	
+	      this.board.withMoveApplied(move, function (move, scoreIncrease) {
+	        _this3._score += scoreIncrease;
+	        callback();
+	        _this3._score -= scoreIncrease;
+	      });
+	    }
+	  }, {
+	    key: 'isValidCommit',
+	    value: function isValidCommit(move) {
+	      return this.tray.isValidCommit(move) && this.board.isValidCommit(move);
+	    }
+	  }, {
+	    key: 'commitMove',
+	    value: function commitMove(move) {
+	      if (!this.isValidCommit(move)) {
+	        return false;
+	      }
+	      this.tray.commitMove(move);
+	      this._score += this.board.commitMove(move);
+	      this.refresh();
+	      return true;
+	    }
+	  }, {
+	    key: 'forEachPieceInTray',
+	    value: function forEachPieceInTray(callback) {
+	      this.tray.forEachPiece(callback);
+	    }
+	  }, {
+	    key: 'refresh',
+	    value: function refresh() {
+	      console.log('refreshing gamestate');
+	      console.log(this.log());
+	      if (this._hook != null) {
+	        if (this._elem != null) {
+	          this._hook.removeChild(this._elem);
+	        }
+	        var elem = this.render();
+	        this._elem = elem;
+	        if (this._hook != null) {
+	          this._hook.appendChild(elem);
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(hook) {
+	      var score = (0, _domutils.makeDiv)(['score'], null, this.score.toString());
 	      var board = this._board.render();
 	      var tray = this._tray.render();
 	
-	      var gamestate = document.createElement("div");
-	      gamestate.className = "GameState";
+	      var gamestate = document.createElement('div');
+	      gamestate.className = 'GameState';
+	      gamestate.appendChild(score);
 	      gamestate.appendChild(board);
 	      gamestate.appendChild(tray);
+	      if (hook != null) {
+	        this._hook = hook;
+	        this._elem = gamestate;
+	      }
 	      return gamestate;
-	    }
-	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
 	    }
 	  }, {
 	    key: 'log',
 	    value: function log() {
 	      return this._board && this._tray ? {
-	        'Board': this._board.log(),
-	        'Tray': this._tray.log()
+	        'Board': this.board.log(),
+	        'Tray': this.tray.log(),
+	        'Score': this.score
 	      } : 'uninitialized';
+	    }
+	  }, {
+	    key: 'encode',
+	    value: function encode() {
+	      return [this.board.encode(), this.tray.encode()].join('');
+	    }
+	  }, {
+	    key: 'tray',
+	    get: function get() {
+	      return this._tray;
+	    }
+	  }, {
+	    key: 'board',
+	    get: function get() {
+	      return this._board;
+	    }
+	  }, {
+	    key: 'score',
+	    get: function get() {
+	      return this._score;
 	    }
 	  }]);
 	  return GameState;
@@ -3257,6 +3208,10 @@
 	  value: true
 	});
 	exports.Board = exports.ROW_WIDTHS = undefined;
+	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
 	
 	var _getPrototypeOf = __webpack_require__(2);
 	
@@ -3278,7 +3233,12 @@
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
 	
+	var _regenerator = __webpack_require__(94);
+	
+	var _regenerator2 = _interopRequireDefault(_regenerator);
+	
 	exports.addOffset = addOffset;
+	exports.pointInBounds = pointInBounds;
 	
 	var _debug = __webpack_require__(109);
 	
@@ -3286,11 +3246,15 @@
 	
 	var _graphicpoint = __webpack_require__(111);
 	
-	var _move = __webpack_require__(114);
+	var _move3 = __webpack_require__(114);
 	
 	var _movestack = __webpack_require__(118);
 	
 	var _offset = __webpack_require__(113);
+	
+	var _piece = __webpack_require__(116);
+	
+	var _pieceplacement = __webpack_require__(115);
 	
 	var _point = __webpack_require__(112);
 	
@@ -3298,7 +3262,11 @@
 	
 	var _hexgraphicutils = __webpack_require__(117);
 	
+	var _domutils = __webpack_require__(128);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _marked = [_allPlacements].map(_regenerator2.default.mark);
 	
 	var ROW_WIDTHS = exports.ROW_WIDTHS = [5, //      ⬣ ⬣ ⬣ ⬣ ⬣
 	6, //     ⬣ ⬣ ⬣ ⬣ ⬣ ⬣
@@ -3315,31 +3283,63 @@
 	function addOffset(point, offset) {
 	  var srcRow = point.row;
 	  var srcCol = point.col;
-	  var dstRow = srcRow + offset.row;
-	  var rowWidthDelta = ROW_WIDTHS[dstRow] - ROW_WIDTHS[srcRow];
-	  var colOffset = offset.col;
+	  var deltaRow = offset.row;
 	
-	  var dstCol = 0;
-	  if (srcRow === dstRow) {
-	    dstCol = srcCol + colOffset;
-	  } else if (srcRow <= MID_ROW && dstRow <= MID_ROW) {
-	    if (colOffset <= 0) {
-	      dstCol = srcCol + (colOffset + rowWidthDelta);
-	    } else {
-	      dstCol = srcCol + colOffset;
-	    }
-	  } else if (srcRow >= MID_ROW && dstRow >= MID_ROW) {
-	    if (colOffset >= 0) {
-	      dstCol = srcCol + (colOffset - 1);
-	    } else {
-	      dstCol = srcCol + colOffset;
-	    }
-	  }
+	  var destRow = srcRow + deltaRow;
+	  var rowsBeyondMid = deltaRow >= 0 ? Math.max(0, destRow - Math.max(srcRow, MID_ROW)) : Math.min(0, Math.max(destRow, MID_ROW) - srcRow);
 	
-	  return new _point.Point(dstRow, dstCol);
+	  var deltaCol = offset.col - rowsBeyondMid;
+	  var destCol = srcCol + deltaCol;
+	
+	  return new _point.Point(destRow, destCol);
 	}
 	
-	function _pointInBounds(point) {
+	function _allPlacements() {
+	  var rows, row, cols, col;
+	  return _regenerator2.default.wrap(function _allPlacements$(_context) {
+	    while (1) {
+	      switch (_context.prev = _context.next) {
+	        case 0:
+	          rows = ROW_WIDTHS.length;
+	          row = 0;
+	
+	        case 2:
+	          if (!(row < rows)) {
+	            _context.next = 14;
+	            break;
+	          }
+	
+	          cols = ROW_WIDTHS[row];
+	          col = 0;
+	
+	        case 5:
+	          if (!(col < cols)) {
+	            _context.next = 11;
+	            break;
+	          }
+	
+	          _context.next = 8;
+	          return new _point.Point(row, col);
+	
+	        case 8:
+	          col++;
+	          _context.next = 5;
+	          break;
+	
+	        case 11:
+	          row++;
+	          _context.next = 2;
+	          break;
+	
+	        case 14:
+	        case 'end':
+	          return _context.stop();
+	      }
+	    }
+	  }, _marked[0], this);
+	}
+	
+	function pointInBounds(point) {
 	  var row = point.row;
 	  var col = point.col;
 	  if (row < 0 || row >= ROW_WIDTHS.length) return false;
@@ -3368,26 +3368,26 @@
 	  }
 	
 	  (0, _createClass3.default)(Board, [{
-	    key: '_getCellAt',
-	    value: function _getCellAt(point) {
-	      (0, _debug.Assert)(_pointInBounds(point), 'Invalid point for _getCellAt', function () {
+	    key: 'getCellAt',
+	    value: function getCellAt(point) {
+	      (0, _debug.Assert)(pointInBounds(point), 'Invalid point for getCellAt', function () {
 	        return point.log();
 	      });
 	      return this._cells[point.row][point.col];
 	    }
 	  }, {
-	    key: '_cellOccupiedAt',
-	    value: function _cellOccupiedAt(point) {
-	      var cell = this._getCellAt(point);
+	    key: 'cellOccupiedAt',
+	    value: function cellOccupiedAt(point) {
+	      var cell = this.getCellAt(point);
 	      return cell.isOccupied;
 	    }
 	  }, {
 	    key: '_canPlaceTileAt',
 	    value: function _canPlaceTileAt(point) {
-	      if (!_pointInBounds(point)) {
+	      if (!pointInBounds(point)) {
 	        return false;
 	      }
-	      if (this._cellOccupiedAt(point)) {
+	      if (this.cellOccupiedAt(point)) {
 	        return false;
 	      }
 	      return true;
@@ -3400,6 +3400,11 @@
 	      return move.piecePlacement.allPointsPass(function (point) {
 	        return _this2._canPlaceTileAt(point);
 	      });
+	    }
+	  }, {
+	    key: 'isValidCommit',
+	    value: function isValidCommit(move) {
+	      return this.isValidMove(move) && this._movestack.isEmpty();
 	    }
 	  }, {
 	    key: 'isValidUnmove',
@@ -3419,13 +3424,17 @@
 	        return move.log();
 	      });
 	
+	      var scoreIncrease = 40;
+	
 	      move.piecePlacement.placeOnCells(function (point) {
-	        return _this3._getCellAt(point);
+	        return _this3.getCellAt(point);
 	      });
 	
-	      move.clearLines(this);
 	      move.setApplied(true);
+	      move.clearLines(this);
+	      scoreIncrease += move.getScoreIncrease();
 	      this._movestack.push(move);
+	      return scoreIncrease;
 	    }
 	  }, {
 	    key: 'unApplyMove',
@@ -3444,17 +3453,142 @@
 	      move.unclearLines(this);
 	
 	      move.piecePlacement.removeFromCells(function (point) {
-	        return _this4._getCellAt(point);
+	        return _this4.getCellAt(point);
 	      });
 	    }
 	  }, {
-	    key: 'getNode',
-	    value: function getNode() {
-	      if (!this._cells) {
-	        return document.createTextNode("board");
+	    key: 'commitMove',
+	    value: function commitMove(move) {
+	      var _this5 = this;
+	
+	      (0, _debug.Assert)(this.isValidCommit(move), 'Cannot commit invalid move to board', function () {
+	        return _this5.log();
+	      });
+	      var scoreIncrease = this.applyMove(move);
+	      this._movestack.flush();
+	      return scoreIncrease;
+	    }
+	  }, {
+	    key: 'allValidMoves',
+	    value: _regenerator2.default.mark(function allValidMoves(piece) {
+	      var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, placement, piecePlacement, _move;
+	
+	      return _regenerator2.default.wrap(function allValidMoves$(_context2) {
+	        while (1) {
+	          switch (_context2.prev = _context2.next) {
+	            case 0:
+	              _iteratorNormalCompletion = true;
+	              _didIteratorError = false;
+	              _iteratorError = undefined;
+	              _context2.prev = 3;
+	              _iterator = (0, _getIterator3.default)(_allPlacements());
+	
+	            case 5:
+	              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+	                _context2.next = 15;
+	                break;
+	              }
+	
+	              placement = _step.value;
+	              piecePlacement = new _pieceplacement.PiecePlacement(piece, placement);
+	              _move = new _move3.Move(piecePlacement);
+	
+	              if (!this.isValidMove(_move)) {
+	                _context2.next = 12;
+	                break;
+	              }
+	
+	              _context2.next = 12;
+	              return _move;
+	
+	            case 12:
+	              _iteratorNormalCompletion = true;
+	              _context2.next = 5;
+	              break;
+	
+	            case 15:
+	              _context2.next = 21;
+	              break;
+	
+	            case 17:
+	              _context2.prev = 17;
+	              _context2.t0 = _context2['catch'](3);
+	              _didIteratorError = true;
+	              _iteratorError = _context2.t0;
+	
+	            case 21:
+	              _context2.prev = 21;
+	              _context2.prev = 22;
+	
+	              if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	              }
+	
+	            case 24:
+	              _context2.prev = 24;
+	
+	              if (!_didIteratorError) {
+	                _context2.next = 27;
+	                break;
+	              }
+	
+	              throw _iteratorError;
+	
+	            case 27:
+	              return _context2.finish(24);
+	
+	            case 28:
+	              return _context2.finish(21);
+	
+	            case 29:
+	            case 'end':
+	              return _context2.stop();
+	          }
+	        }
+	      }, allValidMoves, this, [[3, 17, 21, 29], [22,, 24, 28]]);
+	    })
+	  }, {
+	    key: 'withMoveApplied',
+	    value: function withMoveApplied(move, callback) {
+	      var scoreIncrease = this.applyMove(move);
+	      callback(move, scoreIncrease);
+	      this.unApplyMove(move);
+	    }
+	  }, {
+	    key: 'withEachValidMoveApplied',
+	    value: function withEachValidMoveApplied(callback, piece) {
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        for (var _iterator2 = (0, _getIterator3.default)(this.allValidMoves(piece)), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var _move2 = _step2.value;
+	
+	          this.withMoveApplied(_move2, callback);
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
 	      }
-	      var node = document.createElement("div");
-	      node.className = "board";
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      if (!this._cells) {
+	        return (0, _domutils.makeDiv)(['board'], null, 'uninitialized');
+	      }
+	      var node = (0, _domutils.makeDiv)(['board']);
 	
 	      this._cells.map(function (row) {
 	        row.map(function (cell) {
@@ -3462,16 +3596,7 @@
 	        });
 	      });
 	
-	      node.style.position = 'absolute';
-	      node.style.top = '50px';
-	      node.style.left = '50px';
-	
 	      return node;
-	    }
-	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
 	    }
 	  }, {
 	    key: 'log',
@@ -3487,6 +3612,15 @@
 	          }).join('')
 	        );
 	      });
+	    }
+	  }, {
+	    key: 'encode',
+	    value: function encode() {
+	      return this._cells.map(function (row) {
+	        return row.map(function (cell) {
+	          return cell.isOccupied ? 'x' : '.';
+	        }).join('');
+	      }).join('');
 	    }
 	  }]);
 	  return Board;
@@ -3626,26 +3760,21 @@
 	      this._color = null;
 	    }
 	  }, {
-	    key: 'getNode',
-	    value: function getNode() {
+	    key: 'render',
+	    value: function render() {
 	      var div = document.createElement('div');
-	      div.className = "hex ";
+	      div.className = 'hex ';
 	      if (this.isOccupied) {
-	        div.className += "occupied ";
+	        div.className += 'occupied ';
 	        if (this._color) {
 	          div.className += this._color;
 	        }
 	      } else {
-	        div.className += "unoccupied ";
+	        div.className += 'unoccupied ';
 	      }
 	      div.style.top = this._graphicPoint.row + 'px';
 	      div.style.left = this._graphicPoint.col + 'px';
 	      return div;
-	    }
-	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
 	    }
 	  }, {
 	    key: 'log',
@@ -3661,6 +3790,14 @@
 	    key: 'isOccupied',
 	    get: function get() {
 	      return this._state === CellStateTypes.OCCUPIED;
+	    }
+	  }, {
+	    key: 'color',
+	    get: function get() {
+	      if (this._color == null) {
+	        throw 'Called get color on unoccupied cell';
+	      }
+	      return this._color;
 	    }
 	  }]);
 	  return Cell;
@@ -3693,12 +3830,12 @@
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
 	
-	var _point = __webpack_require__(112);
+	var _rowcolpair = __webpack_require__(127);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var GraphicPoint = exports.GraphicPoint = function (_Point) {
-	  (0, _inherits3.default)(GraphicPoint, _Point);
+	var GraphicPoint = exports.GraphicPoint = function (_RowColPair) {
+	  (0, _inherits3.default)(GraphicPoint, _RowColPair);
 
 	  function GraphicPoint() {
 	    (0, _classCallCheck3.default)(this, GraphicPoint);
@@ -3706,7 +3843,7 @@
 	  }
 
 	  return GraphicPoint;
-	}(_point.Point);
+	}(_rowcolpair.RowColPair);
 
 /***/ },
 /* 112 */
@@ -3719,6 +3856,10 @@
 	});
 	exports.Point = undefined;
 	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
 	var _classCallCheck2 = __webpack_require__(28);
 	
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
@@ -3727,94 +3868,80 @@
 	
 	var _createClass3 = _interopRequireDefault(_createClass2);
 	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
 	var _offset = __webpack_require__(113);
+	
+	var _rowcolpair = __webpack_require__(127);
 	
 	var _board = __webpack_require__(108);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Point = exports.Point = function () {
-	  function Point(row, col) {
-	    (0, _classCallCheck3.default)(this, Point);
+	var Point = exports.Point = function (_RowColPair) {
+	  (0, _inherits3.default)(Point, _RowColPair);
 	
-	    this._row = row;
-	    this._col = col;
+	  function Point() {
+	    (0, _classCallCheck3.default)(this, Point);
+	    return (0, _possibleConstructorReturn3.default)(this, (Point.__proto__ || (0, _getPrototypeOf2.default)(Point)).apply(this, arguments));
 	  }
 	
 	  (0, _createClass3.default)(Point, [{
 	    key: 'plus',
 	    value: function plus(delta) {
-	      // return addOffset(this, delta);
-	      return new Point(this.row + delta.row, this.col + delta.col);
-	    }
-	  }, {
-	    key: 'log',
-	    value: function log() {
-	      return '(' + this.row + ', ' + this.col + ')';
-	    }
-	  }, {
-	    key: 'row',
-	    get: function get() {
-	      return this._row;
-	    }
-	  }, {
-	    key: 'col',
-	    get: function get() {
-	      return this._col;
+	      return (0, _board.addOffset)(this, delta);
 	    }
 	  }]);
 	  return Point;
-	}();
+	}(_rowcolpair.RowColPair);
 
 /***/ },
 /* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	exports.Offset = undefined;
 	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
 	var _classCallCheck2 = __webpack_require__(28);
 	
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 	
-	var _createClass2 = __webpack_require__(29);
+	var _possibleConstructorReturn2 = __webpack_require__(33);
 	
-	var _createClass3 = _interopRequireDefault(_createClass2);
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _rowcolpair = __webpack_require__(127);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Offset = exports.Offset = function () {
-	  function Offset(row, col) {
+	var Offset = exports.Offset = function (_RowColPair) {
+	  (0, _inherits3.default)(Offset, _RowColPair);
+
+	  function Offset() {
 	    (0, _classCallCheck3.default)(this, Offset);
-	
-	    this._row = row;
-	    this._col = col;
+	    return (0, _possibleConstructorReturn3.default)(this, (Offset.__proto__ || (0, _getPrototypeOf2.default)(Offset)).apply(this, arguments));
 	  }
-	
-	  (0, _createClass3.default)(Offset, [{
-	    key: "log",
-	    value: function log() {
-	      return "(" + this.row + ", " + this.col + ")";
-	    }
-	  }, {
-	    key: "row",
-	    get: function get() {
-	      return this._row;
-	    }
-	  }, {
-	    key: "col",
-	    get: function get() {
-	      return this._col;
-	    }
-	  }]);
+
 	  return Offset;
-	}();
-	
-	;
+	}(_rowcolpair.RowColPair);
 
 /***/ },
 /* 114 */
@@ -3835,9 +3962,13 @@
 	
 	var _createClass3 = _interopRequireDefault(_createClass2);
 	
+	var _debug = __webpack_require__(109);
+	
 	var _board = __webpack_require__(108);
 	
 	var _pieceplacement = __webpack_require__(115);
+	
+	var _line = __webpack_require__(135);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3847,17 +3978,41 @@
 	
 	    this._piecePlacement = piecePlacement;
 	    this._applied = false;
+	    this._linesCalculated = false;
+	    this._linesAreCleared = false;
+	    this._lines = [];
 	  }
 	
 	  (0, _createClass3.default)(Move, [{
 	    key: 'clearLines',
 	    value: function clearLines(board) {
-	      // TODO
+	      var _this = this;
+	
+	      (0, _debug.Assert)(!this._linesAreCleared, 'clearLines called on move with lines already cleared', function () {
+	        return _this.log();
+	      });
+	      if (!this._linesCalculated) {
+	        this._lines = (0, _line.checkAllLines)(board);
+	        this._linesCalculated = true;
+	      }
+	      (0, _line.clearLines)(this._lines, board);
+	      this._linesAreCleared = true;
 	    }
 	  }, {
 	    key: 'unclearLines',
 	    value: function unclearLines(board) {
-	      // TODO
+	      var _this2 = this;
+	
+	      (0, _debug.Assert)(this._linesAreCleared, 'unclearLines called on move with lines not cleared', function () {
+	        return _this2.log();
+	      });
+	      (0, _line.unclearLines)(this._lines, board);
+	      this._linesAreCleared = false;
+	    }
+	  }, {
+	    key: 'getScoreIncrease',
+	    value: function getScoreIncrease() {
+	      return 0;
 	    }
 	  }, {
 	    key: 'setApplied',
@@ -4080,6 +4235,16 @@
 	        placement: this._placement.log()
 	      };
 	    }
+	  }, {
+	    key: 'piece',
+	    get: function get() {
+	      return this._piece;
+	    }
+	  }, {
+	    key: 'placement',
+	    get: function get() {
+	      return this._placement;
+	    }
 	  }]);
 	  return PiecePlacement;
 	}();
@@ -4144,7 +4309,7 @@
 	var Piece = exports.Piece = function (_Renderable) {
 	  (0, _inherits3.default)(Piece, _Renderable);
 	
-	  function Piece(offsets, color, alias) {
+	  function Piece(offsets, color, alias, code) {
 	    (0, _classCallCheck3.default)(this, Piece);
 	
 	    var _this = (0, _possibleConstructorReturn3.default)(this, (Piece.__proto__ || (0, _getPrototypeOf2.default)(Piece)).call(this));
@@ -4152,6 +4317,7 @@
 	    _this._offsets = offsets;
 	    _this._color = color;
 	    _this._alias = alias;
+	    _this._code = code;
 	
 	    var _iteratorNormalCompletion = true;
 	    var _didIteratorError = false;
@@ -4265,8 +4431,8 @@
 	      return new _pieceplacement.PiecePlacement(this, anchor);
 	    }
 	  }, {
-	    key: 'getNode',
-	    value: function getNode() {
+	    key: 'render',
+	    value: function render() {
 	      var node = document.createElement('div');
 	      node.className = 'piece';
 	      var _iteratorNormalCompletion3 = true;
@@ -4297,11 +4463,6 @@
 	      return node;
 	    }
 	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
-	    }
-	  }, {
 	    key: 'log',
 	    value: function log() {
 	      return this._alias;
@@ -4310,6 +4471,11 @@
 	    key: 'color',
 	    get: function get() {
 	      return this._color;
+	    }
+	  }, {
+	    key: 'code',
+	    get: function get() {
+	      return this._code;
 	    }
 	  }]);
 	  return Piece;
@@ -4394,6 +4560,16 @@
 	        return [move, popped];
 	      });
 	    }
+	  }, {
+	    key: 'isEmpty',
+	    value: function isEmpty() {
+	      return this._moves.length === 0;
+	    }
+	  }, {
+	    key: 'flush',
+	    value: function flush() {
+	      this._moves = [];
+	    }
 	  }]);
 	  return MoveStack;
 	}();
@@ -4410,6 +4586,10 @@
 	  value: true
 	});
 	exports.Tray = undefined;
+	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
 	
 	var _getPrototypeOf = __webpack_require__(2);
 	
@@ -4430,6 +4610,10 @@
 	var _inherits2 = __webpack_require__(84);
 	
 	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _debug = __webpack_require__(109);
+	
+	var _move = __webpack_require__(114);
 	
 	var _piecedefinitions = __webpack_require__(120);
 	
@@ -4461,8 +4645,68 @@
 	      return _piecedefinitions.PieceDefinitions.randomPiece();
 	    }
 	  }, {
-	    key: 'getNode',
-	    value: function getNode() {
+	    key: 'forEachPiece',
+	    value: function forEachPiece(callback) {
+	      this._pieces.forEach(callback);
+	    }
+	  }, {
+	    key: 'isValidCommit',
+	    value: function isValidCommit(move) {
+	      var movePiece = move.piecePlacement.piece;
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(this._pieces), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var trayPiece = _step.value;
+	
+	          if (trayPiece === movePiece) {
+	            return true;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      return false;
+	    }
+	  }, {
+	    key: '_replacePiece',
+	    value: function _replacePiece(i) {
+	      this._pieces[i] = this._getNextPiece(i);
+	    }
+	  }, {
+	    key: 'commitMove',
+	    value: function commitMove(move) {
+	      var _this2 = this;
+	
+	      var movePiece = move.piecePlacement.piece;
+	      var ii = -1;
+	      this._pieces.forEach(function (trayPiece, i) {
+	        if (movePiece === trayPiece) {
+	          ii = i;
+	        }
+	      });
+	      (0, _debug.Assert)(ii !== -1, 'Cannot commit invalid move to tray', function () {
+	        return _this2.log();
+	      });
+	      this._replacePiece(ii);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
 	      var node = document.createElement('div');
 	      node.className = 'tray';
 	
@@ -4474,11 +4718,6 @@
 	      return node;
 	    }
 	  }, {
-	    key: 'getKey',
-	    value: function getKey() {
-	      return this.log();
-	    }
-	  }, {
 	    key: 'log',
 	    value: function log() {
 	      if (!this._pieces) {
@@ -4487,6 +4726,13 @@
 	      return this._pieces.map(function (piece) {
 	        return piece.log();
 	      });
+	    }
+	  }, {
+	    key: 'encode',
+	    value: function encode() {
+	      return this._pieces.map(function (piece) {
+	        return piece.code;
+	      }).join('');
 	    }
 	  }]);
 	  return Tray;
@@ -4523,107 +4769,97 @@
 	
 	var _pieceDefinitions = [
 	// -------------- GREEN -------------- //
-	new _piece.Piece([new _offset.Offset(0, 0), // ⬣ ⬣ ⬣ ⬣
-	new _offset.Offset(0, 1), new _offset.Offset(0, 2), new _offset.Offset(0, 3)], 'green', "line-horiz"), new _piece.Piece([new _offset.Offset(0, 0), // ⬣
+	[new _piece.Piece([new _offset.Offset(0, 0), // ⬣ ⬣ ⬣ ⬣
+	new _offset.Offset(0, 1), new _offset.Offset(0, 2), new _offset.Offset(0, 3)], 'green', 'line-horiz', '1'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣
 	new _offset.Offset(1, 1), //  ⬣
 	new _offset.Offset(2, 2), //   ⬣
-	new _offset.Offset(3, 3)], 'green', "line-diag-down"), new _piece.Piece([new _offset.Offset(0, 0), //     ⬣
+	new _offset.Offset(3, 3)], 'green', 'line-diag-down', '2'), new _piece.Piece([new _offset.Offset(0, 0), //     ⬣
 	new _offset.Offset(1, 0), //    ⬣
 	new _offset.Offset(2, 0), //   ⬣
-	new _offset.Offset(3, 0)], 'green', "line-diag-up"),
+	new _offset.Offset(3, 0)], 'green', 'line-diag-up', '3')],
 	
 	// -------------- PURPLE -------------- //
 	
-	new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
+	[new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
 	new _offset.Offset(1, 0), //  ⬣ ⬣
 	new _offset.Offset(1, 1), //   ⬣
-	new _offset.Offset(2, 1)], 'purple', 'rhombus-vert'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
+	new _offset.Offset(2, 1)], 'purple', 'rhombus-vert', '4'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
 	new _offset.Offset(0, 1), //  ⬣ ⬣
 	new _offset.Offset(1, 0), //   
-	new _offset.Offset(1, 1)], 'purple', 'rhombus-diag-up'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
+	new _offset.Offset(1, 1)], 'purple', 'rhombus-diag-up', '5'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
 	new _offset.Offset(0, 1), //    ⬣ ⬣
 	new _offset.Offset(1, 1), //   
-	new _offset.Offset(1, 2)], 'purple', 'rhombus-diag-down'),
+	new _offset.Offset(1, 2)], 'purple', 'rhombus-diag-down', '6')],
 	
 	// -------------- YELLOW -------------- //
 	
-	new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
+	[new _piece.Piece([new _offset.Offset(0, 0), //   ⬣ ⬣
 	new _offset.Offset(0, 1), //  ⬣   ⬣
 	new _offset.Offset(1, 0), //   
-	new _offset.Offset(1, 2)], 'yellow', 'dome-d'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣   ⬣
+	new _offset.Offset(1, 2)], 'yellow', 'dome-d', '7'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣   ⬣
 	new _offset.Offset(0, 2), //   ⬣ ⬣
 	new _offset.Offset(1, 1), //   
-	new _offset.Offset(1, 2)], 'yellow', 'dome-l'), new _piece.Piece([new _offset.Offset(0, 0), //    ⬣
+	new _offset.Offset(1, 2)], 'yellow', 'dome-l', '8'), new _piece.Piece([new _offset.Offset(0, 0), //    ⬣
 	new _offset.Offset(1, 1), //     ⬣
 	new _offset.Offset(2, 0), // ⬣ ⬣
-	new _offset.Offset(2, 1)], 'yellow', 'dome-ul'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣
+	new _offset.Offset(2, 1)], 'yellow', 'dome-ul', '9'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣
 	new _offset.Offset(1, 0), // ⬣
 	new _offset.Offset(2, 1), //  ⬣ ⬣
-	new _offset.Offset(2, 2)], 'yellow', 'dome-ur'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
+	new _offset.Offset(2, 2)], 'yellow', 'dome-ur', 'a'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
 	new _offset.Offset(0, 1), //      ⬣
 	new _offset.Offset(1, 2), //     ⬣
-	new _offset.Offset(2, 2)], 'yellow', 'dome-dl'),
-	
-	// new Piece([
-	//   new Offset(0, 0),  //  ⬣ ⬣
-	//   new Offset(0, 1),  // ⬣
-	//   new Offset(1, 0),  //   ⬣
-	//   new Offset(2, 1),  //       
-	// ], 'yellow', 'dome-dr'),
+	new _offset.Offset(2, 2)], 'yellow', 'dome-dl', 'b'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
+	new _offset.Offset(0, 1), // ⬣
+	new _offset.Offset(1, 0), //. ⬣
+	new _offset.Offset(2, 1)], 'yellow', 'dome-dr', 'c')],
 	
 	// ------------ YELLOWGREEN ----------- //
 	
-	new _piece.Piece([new _offset.Offset(0, 0)], 'yellowgreen', 'singleton'),
+	[new _piece.Piece([new _offset.Offset(0, 0)], 'yellowgreen', 'singleton', 'd')],
 	
 	// -------------- ORANGE -------------- //
 	
-	new _piece.Piece([new _offset.Offset(0, 0), //  ⬣
+	[new _piece.Piece([new _offset.Offset(0, 0), //  ⬣
 	new _offset.Offset(1, 0), // ⬣ ⬣ ⬣
 	new _offset.Offset(1, 1), //   
-	new _offset.Offset(1, 2)], 'orange', 'elbow-cc-r'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣ ⬣ ⬣
+	new _offset.Offset(1, 2)], 'orange', 'elbow-cc-r', 'e'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣ ⬣ ⬣
 	new _offset.Offset(0, 1), //     ⬣
 	new _offset.Offset(0, 2), //   
-	new _offset.Offset(1, 2)], 'orange', 'elbow-cc-l'), new _piece.Piece([new _offset.Offset(0, 2), //     ⬣
+	new _offset.Offset(1, 2)], 'orange', 'elbow-cc-l', 'f'), new _piece.Piece([new _offset.Offset(0, 1), //     ⬣
 	new _offset.Offset(1, 0), // ⬣ ⬣
 	new _offset.Offset(1, 1), //  ⬣ 
-	new _offset.Offset(2, 1)], 'orange', 'elbow-cc-ur'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣
+	new _offset.Offset(2, 1)], 'orange', 'elbow-cc-ur', 'g'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣
 	new _offset.Offset(1, 1), //  ⬣
 	new _offset.Offset(2, 1), // ⬣ ⬣ 
-	new _offset.Offset(2, 2)], 'orange', 'elbow-cc-ul'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
+	new _offset.Offset(2, 2)], 'orange', 'elbow-cc-ul', 'h'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
 	new _offset.Offset(0, 1), //   ⬣
 	new _offset.Offset(1, 1), //    ⬣
-	new _offset.Offset(2, 2)], 'orange', 'elbow-cc-dr'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
+	new _offset.Offset(2, 2)], 'orange', 'elbow-cc-dr', 'i'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
 	new _offset.Offset(1, 0), //  ⬣ ⬣
 	new _offset.Offset(1, 1), // ⬣
-	new _offset.Offset(2, 0)], 'orange', 'elbow-cc-dl'),
+	new _offset.Offset(2, 0)], 'orange', 'elbow-cc-dl', 'j')],
 	
 	// --------------- PINK --------------- //
 	
-	new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣ ⬣
+	[new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣ ⬣
 	new _offset.Offset(0, 1), //   ⬣
 	new _offset.Offset(0, 2), //
-	new _offset.Offset(1, 1)], 'pink', 'elbow-cw-r'), new _piece.Piece([new _offset.Offset(0, 1), //      ⬣
+	new _offset.Offset(1, 1)], 'pink', 'elbow-cw-r', 'k'), new _piece.Piece([new _offset.Offset(0, 1), //      ⬣
 	new _offset.Offset(1, 0), //  ⬣ ⬣ ⬣
 	new _offset.Offset(1, 1), //
-	new _offset.Offset(1, 2)], 'pink', 'elbow-cw-l'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
+	new _offset.Offset(1, 2)], 'pink', 'elbow-cw-l', 'l'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
 	new _offset.Offset(1, 0), //  ⬣
 	new _offset.Offset(2, 0), // ⬣ ⬣
-	new _offset.Offset(2, 1)], 'pink', 'elbow-cw-ur'),
-	
-	// new Piece([
-	//   new Offset(0, 0),  // ⬣
-	//   new Offset(1, 1),  //  ⬣ ⬣
-	//   new Offset(1, 2),  //   ⬣
-	//   new Offset(2, 2),  //       
-	// ], 'pink', 'elbow-cw-ul'),
-	
-	new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
+	new _offset.Offset(2, 1)], 'pink', 'elbow-cw-ur', 'm'), new _piece.Piece([new _offset.Offset(0, 0), // ⬣
+	new _offset.Offset(1, 1), //  ⬣ ⬣
+	new _offset.Offset(1, 2), //   ⬣
+	new _offset.Offset(2, 2)], 'pink', 'elbow-cw-ul', 'n'), new _piece.Piece([new _offset.Offset(0, 0), //   ⬣
 	new _offset.Offset(1, 0), //  ⬣ ⬣
 	new _offset.Offset(1, 1), //      ⬣
-	new _offset.Offset(2, 2)], 'pink', 'elbow-cw-dr'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
+	new _offset.Offset(2, 2)], 'pink', 'elbow-cw-dr', 'o'), new _piece.Piece([new _offset.Offset(0, 0), //  ⬣ ⬣
 	new _offset.Offset(0, 1), //   ⬣
 	new _offset.Offset(1, 1), //  ⬣
-	new _offset.Offset(2, 1)], 'pink', 'elbow-cw-dl')];
+	new _offset.Offset(2, 1)], 'pink', 'elbow-cw-dl', 'p')]];
 	
 	var PieceDefinitions = exports.PieceDefinitions = function () {
 	  function PieceDefinitions() {
@@ -4633,20 +4869,25 @@
 	  (0, _createClass3.default)(PieceDefinitions, null, [{
 	    key: 'randomPiece',
 	    value: function randomPiece() {
-	      return (0, _randomItemInNonEmptyArray.randomItemInNonEmptyArray)(_pieceDefinitions);
+	      var pieceSet = (0, _randomItemInNonEmptyArray.randomItemInNonEmptyArray)(_pieceDefinitions);
+	      var piece = (0, _randomItemInNonEmptyArray.randomItemInNonEmptyArray)(pieceSet);
+	      return piece;
 	    }
 	  }, {
 	    key: 'forEachDefinition',
 	    value: function forEachDefinition(callback) {
-	      _pieceDefinitions.forEach(function (piece) {
-	        callback(piece);
+	      var pieceSetCount = _pieceDefinitions.length;
+	      _pieceDefinitions.forEach(function (pieceSet) {
+	        var setSize = pieceSet.length;
+	        var probability = 1 / (pieceSetCount * setSize);
+	        pieceSet.forEach(function (piece) {
+	          callback(piece, probability);
+	        });
 	      });
 	    }
 	  }]);
 	  return PieceDefinitions;
 	}();
-	
-	;
 
 /***/ },
 /* 121 */
@@ -4711,7 +4952,7 @@
 /* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -4730,7 +4971,7 @@
 	
 	var HexDOM = exports.HexDOM = function () {
 	  (0, _createClass3.default)(HexDOM, null, [{
-	    key: "hookname",
+	    key: 'hookname',
 	    get: function get() {
 	      return 'HexDOM';
 	    }
@@ -4743,12 +4984,12 @@
 	  }
 	
 	  (0, _createClass3.default)(HexDOM, [{
-	    key: "getNode",
+	    key: 'getNode',
 	    value: function getNode(nodeName) {
-	      throw "abstract";
+	      throw 'abstract';
 	    }
 	  }, {
-	    key: "setNode",
+	    key: 'setNode',
 	    value: function setNode(node) {
 	      var cls = this.constructor;
 	      var hookname = cls.hookname;
@@ -4796,6 +5037,8 @@
 	
 	var _renderable = __webpack_require__(93);
 	
+	var _domutils = __webpack_require__(128);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var StatusBar = exports.StatusBar = function (_Renderable) {
@@ -4810,23 +5053,21 @@
 	  (0, _createClass3.default)(StatusBar, [{
 	    key: 'getNode',
 	    value: function getNode() {
-	      return document.createTextNode("Status Bar");
+	      return (0, _domutils.makeDiv)(null, 'statusbar', 'Status Bar');
 	    }
 	  }, {
 	    key: 'getKey',
 	    value: function getKey() {
-	      return "statttttsss bar";
+	      return 'statttttsss bar';
 	    }
 	  }, {
 	    key: 'log',
 	    value: function log() {
-	      return "status bar";
+	      return 'status bar';
 	    }
 	  }]);
 	  return StatusBar;
 	}(_renderable.Renderable);
-	
-	;
 
 /***/ },
 /* 126 */
@@ -4879,6 +5120,881 @@
 	  }]);
 	  return StandaloneDOM;
 	}(_hexdom.HexDOM);
+
+/***/ },
+/* 127 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.RowColPair = undefined;
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var RowColPair = exports.RowColPair = function () {
+	  function RowColPair(row, col) {
+	    (0, _classCallCheck3.default)(this, RowColPair);
+	
+	    this._row = row;
+	    this._col = col;
+	  }
+	
+	  (0, _createClass3.default)(RowColPair, [{
+	    key: "log",
+	    value: function log() {
+	      return "(" + this.row + ", " + this.col + ")";
+	    }
+	  }, {
+	    key: "row",
+	    get: function get() {
+	      return this._row;
+	    }
+	  }, {
+	    key: "col",
+	    get: function get() {
+	      return this._col;
+	    }
+	  }]);
+	  return RowColPair;
+	}();
+
+/***/ },
+/* 128 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.makeDiv = makeDiv;
+	
+	var _graphicpoint = __webpack_require__(111);
+	
+	function makeDiv(classNames, id, textContents, at) {
+	  var elem = document.createElement('div');
+	  if (id) {
+	    elem.id = id;
+	  }
+	
+	  classNames = classNames || [];
+	  if (at) {
+	    classNames.push('abs');
+	  }
+	
+	  if (classNames.length > 0) {
+	    elem.className = classNames.join(' ');
+	  }
+	
+	  if (textContents) {
+	    elem.appendChild(document.createTextNode(textContents));
+	  }
+	
+	  if (at) {
+	    elem.style.top = at.row + 'px';
+	    elem.style.left = at.col + 'px';
+	  }
+	
+	  return elem;
+	}
+
+/***/ },
+/* 129 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.StrategyStore = undefined;
+	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _strategy = __webpack_require__(130);
+	
+	var _randomheuristicstrategy = __webpack_require__(132);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// ---------------------------------
+	
+	var StrategyConfigs = [
+	// First element is default
+	new _strategy.StrategyConfig('Random', function (hook, debug) {
+	  return new _randomheuristicstrategy.RandomHeuristicStrategy(hook, debug);
+	})];
+	
+	// --------- Strategies ------------
+	
+	var StrategyStore = exports.StrategyStore = function () {
+	  function StrategyStore() {
+	    (0, _classCallCheck3.default)(this, StrategyStore);
+	  }
+	
+	  (0, _createClass3.default)(StrategyStore, null, [{
+	    key: 'strategyConfigs',
+	    value: function strategyConfigs() {
+	      return StrategyConfigs;
+	    }
+	  }, {
+	    key: 'getDefaultStrategyConfig',
+	    value: function getDefaultStrategyConfig() {
+	      return StrategyConfigs[0];
+	    }
+	  }, {
+	    key: 'getByName',
+	    value: function getByName(name) {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(StrategyStore.strategyConfigs()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var strategyConfig = _step.value;
+	
+	          if (strategyConfig.name === name) {
+	            return strategyConfig;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      return null;
+	    }
+	  }]);
+	  return StrategyStore;
+	}();
+
+/***/ },
+/* 130 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.StrategyConfig = exports.Strategy = undefined;
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _move = __webpack_require__(114);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Strategy = exports.Strategy = function () {
+	  function Strategy(hook, debug) {
+	    (0, _classCallCheck3.default)(this, Strategy);
+	
+	    this._hook = hook;
+	    this._debug = debug;
+	  }
+	
+	  (0, _createClass3.default)(Strategy, [{
+	    key: 'chooseMove',
+	    value: function chooseMove(view) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'explain',
+	    value: function explain(view) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'show',
+	    value: function show(view) {
+	      if (this._shownElement != null) {
+	        this._shownElement.remove();
+	      }
+	      var elem = this.explain(view);
+	      this._hook.appendChild(elem);
+	      this._shownElement = elem;
+	    }
+	  }]);
+	  return Strategy;
+	}();
+	
+	var StrategyConfig = exports.StrategyConfig = function () {
+	  function StrategyConfig(name, strategyConstructor) {
+	    (0, _classCallCheck3.default)(this, StrategyConfig);
+	
+	    this._name = name;
+	    this._strategyConstructor = strategyConstructor;
+	  }
+	
+	  (0, _createClass3.default)(StrategyConfig, [{
+	    key: 'getStrategy',
+	    value: function getStrategy(hook, debug) {
+	      return this._strategyConstructor(hook, debug);
+	    }
+	  }, {
+	    key: 'name',
+	    get: function get() {
+	      return this._name;
+	    }
+	  }]);
+	  return StrategyConfig;
+	}();
+
+/***/ },
+/* 131 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _move = __webpack_require__(114);
+	
+	var _piece = __webpack_require__(116);
+
+/***/ },
+/* 132 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.RandomHeuristicStrategy = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _heuristicstrategy = __webpack_require__(133);
+	
+	var _move = __webpack_require__(114);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var RandomHeuristicStrategy = exports.RandomHeuristicStrategy = function (_HeuristicStrategy) {
+	  (0, _inherits3.default)(RandomHeuristicStrategy, _HeuristicStrategy);
+	
+	  function RandomHeuristicStrategy() {
+	    (0, _classCallCheck3.default)(this, RandomHeuristicStrategy);
+	    return (0, _possibleConstructorReturn3.default)(this, (RandomHeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(RandomHeuristicStrategy)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(RandomHeuristicStrategy, [{
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      return 100 * Math.random();
+	    }
+	  }]);
+	  return RandomHeuristicStrategy;
+	}(_heuristicstrategy.HeuristicStrategy);
+
+/***/ },
+/* 133 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.HeuristicStrategy = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _move = __webpack_require__(114);
+	
+	var _strategy = __webpack_require__(130);
+	
+	var _domutils = __webpack_require__(128);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ROWS_EXPANDED_BY_DEFAULT = 3;
+	var TOGGLE_ARROW_EXPANDED = '▼';
+	var TOGGLE_ARROW_COLLAPSED = '▶';
+	
+	var HeuristicStrategy = exports.HeuristicStrategy = function (_Strategy) {
+	  (0, _inherits3.default)(HeuristicStrategy, _Strategy);
+	
+	  function HeuristicStrategy() {
+	    (0, _classCallCheck3.default)(this, HeuristicStrategy);
+	    return (0, _possibleConstructorReturn3.default)(this, (HeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(HeuristicStrategy)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(HeuristicStrategy, [{
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'explain',
+	    value: function explain(view) {
+	      var _this2 = this;
+	
+	      var scoredMoves = this._getScoredMoves(view);
+	      var explainDiv = (0, _domutils.makeDiv)(['ai-heuristic-explain']);
+	      var table = document.createElement('table');
+	      scoredMoves.forEach(function (scoredMove, i) {
+	        var expanded = i < ROWS_EXPANDED_BY_DEFAULT;
+	
+	        var tr = document.createElement('tr');
+	        tr.className = expanded ? 'expanded' : 'collapsed';
+	
+	        var score = scoredMove.score;
+	        var move = scoredMove.move;
+	
+	        var toggleTD = document.createElement('td');
+	        var toggleA = document.createElement('a');
+	        var toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
+	        toggleA.appendChild(toggleDiv);
+	        toggleA.href = '#';
+	        toggleA.onclick = function () {
+	          expanded = !expanded;
+	          toggleA.removeChild(toggleDiv);
+	          toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
+	          toggleA.appendChild(toggleDiv);
+	          tr.className = expanded ? 'expanded' : 'collapsed';
+	        };
+	        toggleTD.appendChild(toggleA);
+	
+	        var scoreTD = document.createElement('td');
+	        scoreTD.appendChild((0, _domutils.makeDiv)(['ai-heuristic-explain-score-div'], null, score.toFixed(2)));
+	
+	        var moveTD = document.createElement('td');
+	        var moveDiv = (0, _domutils.makeDiv)(['move']);
+	        moveDiv.appendChild(_this2._getGameElementWithMoveApplied(view, move));
+	        moveTD.appendChild(moveDiv);
+	
+	        tr.appendChild(toggleTD);
+	        tr.appendChild(scoreTD);
+	        tr.appendChild(moveTD);
+	        table.appendChild(tr);
+	      });
+	      explainDiv.appendChild(table);
+	      return explainDiv;
+	    }
+	  }, {
+	    key: '_getGameElementWithMoveApplied',
+	    value: function _getGameElementWithMoveApplied(view, move) {
+	      var elem = (0, _domutils.makeDiv)();
+	      view.withMoveApplied(move, function () {
+	        elem = view.render();
+	      });
+	      return elem;
+	    }
+	  }, {
+	    key: 'chooseMove',
+	    value: function chooseMove(view) {
+	      var scoredMoves = this._getScoredMoves(view);
+	      return scoredMoves[0].move;
+	    }
+	  }, {
+	    key: '_getScoredMoves',
+	    value: function _getScoredMoves(view) {
+	      var _this3 = this;
+	
+	      var encoded = view.encode();
+	      if (this._cachedHeuristicsCode != null && this._cachedHeuristicsCode === encoded && this._cachedHeuristics != null) {
+	        return this._cachedHeuristics;
+	      }
+	
+	      var scoredMoves = [];
+	      view.withEachValidMoveApplied(function (move) {
+	        var score = _this3.heuristic(view, move);
+	        scoredMoves.push({ move: move, score: score });
+	      });
+	      scoredMoves.sort(function (a, b) {
+	        return a.score > b.score ? -1 : 1;
+	      });
+	
+	      this._cachedHeuristicsCode = encoded;
+	      this._cachedHeuristics = scoredMoves;
+	      return this._cachedHeuristics;
+	    }
+	  }, {
+	    key: '_logScoredMove',
+	    value: function _logScoredMove(scoredMove) {
+	      var score = scoredMove.score;
+	      var move = scoredMove.move;
+	      var piecePlacement = move.piecePlacement;
+	      var piece = piecePlacement.piece;
+	      var placement = piecePlacement.placement;
+	      return [score, piece.log(), placement.log()];
+	    }
+	  }, {
+	    key: '_logScoredMoves',
+	    value: function _logScoredMoves(scoredMoves) {
+	      var _this4 = this;
+	
+	      console.log('Scored', scoredMoves.map(function (scoredMove) {
+	        return _this4._logScoredMove(scoredMove);
+	      }));
+	    }
+	  }]);
+	  return HeuristicStrategy;
+	}(_strategy.Strategy);
+
+/***/ },
+/* 134 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.GameStateViewer = undefined;
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _gamestate = __webpack_require__(107);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _move = __webpack_require__(114);
+	
+	var _piece = __webpack_require__(116);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var GameStateViewer = exports.GameStateViewer = function GameStateViewer(state) {
+	  (0, _classCallCheck3.default)(this, GameStateViewer);
+	
+	  this.gameIsOver = function () {
+	    return state.gameIsOver();
+	  };
+	
+	  this.hasUnknowns = function () {
+	    return state.hasUnknowns();
+	  };
+	
+	  this.withEachUnknownResolved = function (callback) {
+	    return state.withEachUnknownResolved(callback);
+	  };
+	
+	  this.withEachValidMoveApplied = function (callback) {
+	    return state.withEachValidMoveApplied(callback);
+	  };
+	
+	  this.withMoveApplied = function (move, callback) {
+	    return state.withMoveApplied(move, callback);
+	  };
+	
+	  this.commitMove = function (move) {
+	    return state.commitMove(move);
+	  };
+	
+	  this.forEachPieceInTray = function (callback) {
+	    return state.forEachPieceInTray(callback);
+	  };
+	
+	  this.render = function () {
+	    return state.render();
+	  };
+	
+	  this.encode = function () {
+	    return state.encode();
+	  };
+	};
+
+/***/ },
+/* 135 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Line = undefined;
+	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
+	
+	var _regenerator = __webpack_require__(94);
+	
+	var _regenerator2 = _interopRequireDefault(_regenerator);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	exports.checkAllLines = checkAllLines;
+	exports.clearLines = clearLines;
+	exports.unclearLines = unclearLines;
+	
+	var _board = __webpack_require__(108);
+	
+	var _offset = __webpack_require__(113);
+	
+	var _point = __webpack_require__(112);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var HorizontalOffset = new _offset.Offset(0, 1);
+	var UpRightOffset = new _offset.Offset(-1, 0);
+	var DownRightOffset = new _offset.Offset(1, 1);
+	
+	function getDirectionOffset(direction) {
+	  switch (direction) {
+	    case 'Horizontal':
+	      return HorizontalOffset;
+	    case 'UpRight':
+	      return UpRightOffset;
+	    case 'DownRight':
+	      return DownRightOffset;
+	    default:
+	      throw 'Invalid';
+	  }
+	}
+	
+	var Line = exports.Line = function () {
+	  function Line(start, direction) {
+	    (0, _classCallCheck3.default)(this, Line);
+	
+	    this._start = start;
+	    this._direction = direction;
+	    this._offset = getDirectionOffset(direction);
+	  }
+	
+	  (0, _createClass3.default)(Line, [{
+	    key: '_points',
+	    value: _regenerator2.default.mark(function _points() {
+	      var point;
+	      return _regenerator2.default.wrap(function _points$(_context) {
+	        while (1) {
+	          switch (_context.prev = _context.next) {
+	            case 0:
+	              point = this._start;
+	
+	            case 1:
+	              if (!(0, _board.pointInBounds)(point)) {
+	                _context.next = 7;
+	                break;
+	              }
+	
+	              _context.next = 4;
+	              return point;
+	
+	            case 4:
+	              point = point.plus(this._offset);
+	              _context.next = 1;
+	              break;
+	
+	            case 7:
+	            case 'end':
+	              return _context.stop();
+	          }
+	        }
+	      }, _points, this);
+	    })
+	  }, {
+	    key: 'isComplete',
+	    value: function isComplete(board) {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(this._points()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var point = _step.value;
+	
+	          if (!board.cellOccupiedAt(point)) {
+	            return false;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      return true;
+	    }
+	  }, {
+	    key: 'getClearHistory',
+	    value: function getClearHistory(board) {
+	      var colors = [];
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        for (var _iterator2 = (0, _getIterator3.default)(this._points()), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var point = _step2.value;
+	
+	          var cell = board.getCellAt(point);
+	          colors.push(cell.color);
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	
+	      return {
+	        line: this,
+	        colors: colors
+	      };
+	    }
+	  }, {
+	    key: 'clear',
+	    value: function clear(board) {
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+	
+	      try {
+	        for (var _iterator3 = (0, _getIterator3.default)(this._points()), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var point = _step3.value;
+	
+	          var cell = board.getCellAt(point);
+	          if (cell.isOccupied) {
+	            cell.removeTile();
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'unclear',
+	    value: function unclear(board, colors) {
+	      var i = 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = (0, _getIterator3.default)(this._points()), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var point = _step4.value;
+	
+	          var cell = board.getCellAt(point);
+	          if (!cell.isOccupied) {
+	            cell.placeTile(colors[i++]);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
+	          }
+	        }
+	      }
+	    }
+	  }]);
+	  return Line;
+	}();
+	
+	function checkAllLines(board) {
+	  var linesCleared = [];
+	  var _iteratorNormalCompletion5 = true;
+	  var _didIteratorError5 = false;
+	  var _iteratorError5 = undefined;
+	
+	  try {
+	    for (var _iterator5 = (0, _getIterator3.default)(Lines), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	      var _line = _step5.value;
+	
+	      if (_line.isComplete(board)) {
+	        linesCleared.push(_line.getClearHistory(board));
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError5 = true;
+	    _iteratorError5 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	        _iterator5.return();
+	      }
+	    } finally {
+	      if (_didIteratorError5) {
+	        throw _iteratorError5;
+	      }
+	    }
+	  }
+	
+	  return linesCleared;
+	}
+	
+	function clearLines(lines, board) {
+	  var _iteratorNormalCompletion6 = true;
+	  var _didIteratorError6 = false;
+	  var _iteratorError6 = undefined;
+	
+	  try {
+	    for (var _iterator6 = (0, _getIterator3.default)(lines), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	      var lineClearHistory = _step6.value;
+	
+	      var _line2 = lineClearHistory.line;
+	      _line2.clear(board);
+	    }
+	  } catch (err) {
+	    _didIteratorError6 = true;
+	    _iteratorError6 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	        _iterator6.return();
+	      }
+	    } finally {
+	      if (_didIteratorError6) {
+	        throw _iteratorError6;
+	      }
+	    }
+	  }
+	}
+	
+	function unclearLines(lines, board) {
+	  var _iteratorNormalCompletion7 = true;
+	  var _didIteratorError7 = false;
+	  var _iteratorError7 = undefined;
+	
+	  try {
+	    for (var _iterator7 = (0, _getIterator3.default)(lines), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	      var lineClearHistory = _step7.value;
+	
+	      var _line3 = lineClearHistory.line;
+	      var _colors = lineClearHistory.colors;
+	      _line3.unclear(board, _colors);
+	    }
+	  } catch (err) {
+	    _didIteratorError7 = true;
+	    _iteratorError7 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	        _iterator7.return();
+	      }
+	    } finally {
+	      if (_didIteratorError7) {
+	        throw _iteratorError7;
+	      }
+	    }
+	  }
+	}
+	
+	var Lines = [new Line(new _point.Point(0, 0), 'Horizontal'), new Line(new _point.Point(1, 0), 'Horizontal'), new Line(new _point.Point(2, 0), 'Horizontal'), new Line(new _point.Point(3, 0), 'Horizontal'), new Line(new _point.Point(4, 0), 'Horizontal'), new Line(new _point.Point(5, 0), 'Horizontal'), new Line(new _point.Point(6, 0), 'Horizontal'), new Line(new _point.Point(7, 0), 'Horizontal'), new Line(new _point.Point(8, 0), 'Horizontal'), new Line(new _point.Point(0, 0), 'DownRight'), new Line(new _point.Point(1, 0), 'DownRight'), new Line(new _point.Point(2, 0), 'DownRight'), new Line(new _point.Point(3, 0), 'DownRight'), new Line(new _point.Point(4, 0), 'DownRight'), new Line(new _point.Point(0, 1), 'DownRight'), new Line(new _point.Point(0, 2), 'DownRight'), new Line(new _point.Point(0, 3), 'DownRight'), new Line(new _point.Point(0, 4), 'DownRight'), new Line(new _point.Point(4, 0), 'UpRight'), new Line(new _point.Point(5, 0), 'UpRight'), new Line(new _point.Point(6, 0), 'UpRight'), new Line(new _point.Point(7, 0), 'UpRight'), new Line(new _point.Point(8, 0), 'UpRight'), new Line(new _point.Point(8, 1), 'UpRight'), new Line(new _point.Point(8, 2), 'UpRight'), new Line(new _point.Point(8, 3), 'UpRight'), new Line(new _point.Point(8, 4), 'UpRight')];
 
 /***/ }
 /******/ ]);

@@ -28,6 +28,13 @@ export class Cell extends Renderable {
     return (this._state === CellStateTypes.OCCUPIED);
   }
 
+  get color(): PieceColor {
+    if (this._color == null) {
+      throw 'Called get color on unoccupied cell';
+    }
+    return this._color;
+  }
+
   placeTile(color: PieceColor) {
     Assert(
       !this.isOccupied, 
@@ -48,24 +55,20 @@ export class Cell extends Renderable {
     this._color = null;
   }
 
-  getNode(): Node {
+  render(): HTMLElement {
     let div = document.createElement('div');
-    div.className = "hex ";
+    div.className = 'hex ';
     if (this.isOccupied) {
-      div.className += "occupied ";
+      div.className += 'occupied ';
       if (this._color) {
         div.className += this._color;  
       }
     } else {
-      div.className += "unoccupied ";
+      div.className += 'unoccupied ';
     }
     div.style.top = `${this._graphicPoint.row}px`;
     div.style.left = `${this._graphicPoint.col}px`;
     return div;
-  }
-
-  getKey(): ?Loggable {
-    return this.log();
   }
 
   log(): Loggable {

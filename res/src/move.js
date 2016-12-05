@@ -18,6 +18,7 @@ export class Move {
   _linesCalculated: boolean;
   _linesAreCleared: boolean;
   _lines: LineClearHistory[];
+  _scoreIncrease: number;
 
   constructor(piecePlacement: PiecePlacement) {
     this._piecePlacement = piecePlacement;
@@ -25,6 +26,7 @@ export class Move {
     this._linesCalculated = false;
     this._linesAreCleared = false;
     this._lines = [];
+    this._scoreIncrease = -1;
   }
 
   get piecePlacement(): PiecePlacement {
@@ -57,10 +59,13 @@ export class Move {
 
   getScoreIncrease(): number {
     Assert(
-      this._linesAreCleared,
+      this._linesCalculated,
       'getScoreIncrease called before clearLines',
       () => this.log(),
     );
+    if (this._scoreIncrease !== -1) {
+      return this._scoreIncrease;
+    }
     let scoreIncrease = 0;
     let lineLengths = this._lines.map(
       line => line.colors.length
@@ -71,7 +76,8 @@ export class Move {
       scoreIncrease += 10 * len * (lineCount + 1) *
         Math.max(1, Math.pow(i, 1.2))
     });
-    return Math.floor(scoreIncrease);
+    this._scoreIncrease = Math.floor(scoreIncrease);
+    return this._scoreIncrease;
   }
 
   setApplied(applied: boolean): void {

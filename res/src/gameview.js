@@ -29,4 +29,6 @@ export interface GameView {
   render: () => HTMLElement;
 
   encode: () => string;
+
+  getScore: () => number;
 }

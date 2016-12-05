@@ -3982,6 +3982,7 @@
 	    this._linesCalculated = false;
 	    this._linesAreCleared = false;
 	    this._lines = [];
+	    this._scoreIncrease = -1;
 	  }
 	
 	  (0, _createClass3.default)(Move, [{
@@ -4015,9 +4016,12 @@
 	    value: function getScoreIncrease() {
 	      var _this3 = this;
 	
-	      (0, _debug.Assert)(this._linesAreCleared, 'getScoreIncrease called before clearLines', function () {
+	      (0, _debug.Assert)(this._linesCalculated, 'getScoreIncrease called before clearLines', function () {
 	        return _this3.log();
 	      });
+	      if (this._scoreIncrease !== -1) {
+	        return this._scoreIncrease;
+	      }
 	      var scoreIncrease = 0;
 	      var lineLengths = this._lines.map(function (line) {
 	        return line.colors.length;
@@ -4027,7 +4031,8 @@
 	      lineLengths.forEach(function (len, i) {
 	        scoreIncrease += 10 * len * (lineCount + 1) * Math.max(1, Math.pow(i, 1.2));
 	      });
-	      return Math.floor(scoreIncrease);
+	      this._scoreIncrease = Math.floor(scoreIncrease);
+	      return this._scoreIncrease;
 	    }
 	  }, {
 	    key: 'setApplied',
@@ -5251,17 +5256,20 @@
 	
 	var _randomheuristicstrategy = __webpack_require__(132);
 	
+	var _scoreheuristicstrategy = __webpack_require__(136);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	// ---------------------------------
 	
+	// --------- Strategies ------------
 	var StrategyConfigs = [
 	// First element is default
-	new _strategy.StrategyConfig('Random', function (hook, debug) {
+	new _strategy.StrategyConfig('Points', function (hook, debug) {
+	  return new _scoreheuristicstrategy.ScoreHeuristicStrategy(hook, debug);
+	}), new _strategy.StrategyConfig('Random', function (hook, debug) {
 	  return new _randomheuristicstrategy.RandomHeuristicStrategy(hook, debug);
 	})];
-	
-	// --------- Strategies ------------
 	
 	var StrategyStore = exports.StrategyStore = function () {
 	  function StrategyStore() {
@@ -5513,6 +5521,9 @@
 	  }
 	
 	  (0, _createClass3.default)(HeuristicStrategy, [{
+	    key: 'baseline',
+	    value: function baseline(view) {}
+	  }, {
 	    key: 'heuristic',
 	    value: function heuristic(view, move) {
 	      throw 'abstract';
@@ -5601,6 +5612,7 @@
 	        return this._cachedHeuristics;
 	      }
 	
+	      this.baseline(view);
 	      var scoredMoves = [];
 	      view.withEachValidMoveApplied(function (move) {
 	        var score = _this3.heuristic(view, move);
@@ -5699,6 +5711,10 @@
 	
 	  this.encode = function () {
 	    return state.encode();
+	  };
+	
+	  this.getScore = function () {
+	    return state.score;
 	  };
 	};
 
@@ -6023,6 +6039,76 @@
 	}
 	
 	var Lines = [new Line(new _point.Point(0, 0), 'Horizontal'), new Line(new _point.Point(1, 0), 'Horizontal'), new Line(new _point.Point(2, 0), 'Horizontal'), new Line(new _point.Point(3, 0), 'Horizontal'), new Line(new _point.Point(4, 0), 'Horizontal'), new Line(new _point.Point(5, 0), 'Horizontal'), new Line(new _point.Point(6, 0), 'Horizontal'), new Line(new _point.Point(7, 0), 'Horizontal'), new Line(new _point.Point(8, 0), 'Horizontal'), new Line(new _point.Point(0, 0), 'DownRight'), new Line(new _point.Point(1, 0), 'DownRight'), new Line(new _point.Point(2, 0), 'DownRight'), new Line(new _point.Point(3, 0), 'DownRight'), new Line(new _point.Point(4, 0), 'DownRight'), new Line(new _point.Point(0, 1), 'DownRight'), new Line(new _point.Point(0, 2), 'DownRight'), new Line(new _point.Point(0, 3), 'DownRight'), new Line(new _point.Point(0, 4), 'DownRight'), new Line(new _point.Point(4, 0), 'UpRight'), new Line(new _point.Point(5, 0), 'UpRight'), new Line(new _point.Point(6, 0), 'UpRight'), new Line(new _point.Point(7, 0), 'UpRight'), new Line(new _point.Point(8, 0), 'UpRight'), new Line(new _point.Point(8, 1), 'UpRight'), new Line(new _point.Point(8, 2), 'UpRight'), new Line(new _point.Point(8, 3), 'UpRight'), new Line(new _point.Point(8, 4), 'UpRight')];
+
+/***/ },
+/* 136 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.ScoreHeuristicStrategy = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _heuristicstrategy = __webpack_require__(133);
+	
+	var _move = __webpack_require__(114);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ScoreHeuristicStrategy = exports.ScoreHeuristicStrategy = function (_HeuristicStrategy) {
+	  (0, _inherits3.default)(ScoreHeuristicStrategy, _HeuristicStrategy);
+	
+	  function ScoreHeuristicStrategy() {
+	    (0, _classCallCheck3.default)(this, ScoreHeuristicStrategy);
+	    return (0, _possibleConstructorReturn3.default)(this, (ScoreHeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(ScoreHeuristicStrategy)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(ScoreHeuristicStrategy, [{
+	    key: 'baseline',
+	    value: function baseline(view) {
+	      this._baselineScore = view.getScore();
+	    }
+	  }, {
+	    key: '_scoreDelta',
+	    value: function _scoreDelta(view, baselineScore) {
+	      return view.getScore() - baselineScore;
+	    }
+	  }, {
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      if (this._baselineScore == null) {
+	        throw 'uninitialized';
+	      } else {
+	        return this._scoreDelta(view, this._baselineScore);
+	      }
+	    }
+	  }]);
+	  return ScoreHeuristicStrategy;
+	}(_heuristicstrategy.HeuristicStrategy);
 
 /***/ }
 /******/ ]);

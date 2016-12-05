@@ -19,6 +19,8 @@ export class HeuristicStrategy extends Strategy {
   _cachedHeuristicsCode: ?string;
   _cachedHeuristics: ?MoveAndScore[];
 
+  baseline(view: GameView): void { }
+
   heuristic(view: GameView, move: Move): number {
     throw 'abstract';
   }
@@ -123,6 +125,7 @@ export class HeuristicStrategy extends Strategy {
       return this._cachedHeuristics;
     }
 
+    this.baseline(view);
     let scoredMoves: MoveAndScore[] = [];
     view.withEachValidMoveApplied((move: Move) => {
       const score = this.heuristic(view, move);
@@ -151,8 +154,4 @@ export class HeuristicStrategy extends Strategy {
       this._logScoredMove(scoredMove),
     ));
   }
-
-
-
-  
 }

@@ -5,10 +5,17 @@ import {
 
 // --------- Strategies ------------
 import {RandomHeuristicStrategy} from 'randomheuristicstrategy.js';
+import {ScoreHeuristicStrategy} from 'scoreheuristicstrategy.js';
 // ---------------------------------
 
 const StrategyConfigs = [
   // First element is default
+  new StrategyConfig(
+    'Points',
+    (hook: HTMLElement, debug: boolean) => 
+      new ScoreHeuristicStrategy(hook, debug),
+  ),
+
   new StrategyConfig(
     'Random',
     (hook: HTMLElement, debug: boolean) => 

@@ -31,6 +31,8 @@ export class GameStateViewer {
 
   encode: () => string;
 
+  getScore: () => number;
+
   constructor(state: GameState) {
     this.gameIsOver = () => {
       return state.gameIsOver();
@@ -67,5 +69,9 @@ export class GameStateViewer {
     this.encode = () => {
       return state.encode();
     };
+
+    this.getScore = () => {
+      return state.score;
+    }
   }
 }

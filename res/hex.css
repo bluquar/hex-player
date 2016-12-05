@@ -130,6 +130,18 @@
   background-color: #999;
 }
 
+.ai-heuristic-explain th:nth-child(1) {
+  width: 20px;
+}
+
+.ai-heuristic-explain td:nth-child(1) {
+  width: 20px;
+}
+
+.ai-heuristic-explain th:nth-child(3) {
+  width: 235px;
+}
+
 .ai-heuristic-explain td:nth-child(3) {
   width: 235px;
 }

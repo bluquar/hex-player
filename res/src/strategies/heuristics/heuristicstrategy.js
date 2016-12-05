@@ -1,6 +1,6 @@
 import {GameView} from 'gameview.js';
 import {Move} from 'move.js';
-import {Strategy} from 'strategy.js';
+import {Strategy} from 'strategies/strategy.js';
 
 import {makeDiv} from 'domutils.js';
 

@@ -1754,7 +1754,7 @@
 	
 	var _renderable = __webpack_require__(93);
 	
-	var _strategystore = __webpack_require__(129);
+	var _strategystore = __webpack_require__(137);
 	
 	var _domutils = __webpack_require__(128);
 	
@@ -3104,10 +3104,12 @@
 	    value: function withMoveApplied(move, callback) {
 	      var _this3 = this;
 	
-	      this.board.withMoveApplied(move, function (move, scoreIncrease) {
-	        _this3._score += scoreIncrease;
-	        callback();
-	        _this3._score -= scoreIncrease;
+	      this.tray.withMoveApplied(move, function () {
+	        _this3.board.withMoveApplied(move, function (move, scoreIncrease) {
+	          _this3._score += scoreIncrease;
+	          callback();
+	          _this3._score -= scoreIncrease;
+	        });
 	      });
 	    }
 	  }, {
@@ -3129,7 +3131,32 @@
 	  }, {
 	    key: 'forEachPieceInTray',
 	    value: function forEachPieceInTray(callback) {
-	      this.tray.forEachPiece(callback);
+	      this.tray.forEachPieceApplied(callback);
+	    }
+	  }, {
+	    key: 'forEachKnownTrayPiece',
+	    value: function forEachKnownTrayPiece(callback) {
+	      this.tray.forEachKnownPiece(callback);
+	    }
+	  }, {
+	    key: 'forEachUnknownTrayPiece',
+	    value: function forEachUnknownTrayPiece(callback) {
+	      this.tray.forEachUnknownTrayPiece(callback);
+	    }
+	  }, {
+	    key: 'placesForPiece',
+	    value: function placesForPiece(piece) {
+	      return this.board.placesForPiece(piece);
+	    }
+	  }, {
+	    key: 'canPieceBePlaced',
+	    value: function canPieceBePlaced(piece) {
+	      return this.board.canSequenceBePlaced([piece]);
+	    }
+	  }, {
+	    key: 'canSequenceBePlaced',
+	    value: function canSequenceBePlaced(sequence) {
+	      return this.board.canSequenceBePlaced(sequence);
 	    }
 	  }, {
 	    key: 'refresh',
@@ -3246,7 +3273,7 @@
 	
 	var _graphicpoint = __webpack_require__(111);
 	
-	var _move3 = __webpack_require__(114);
+	var _move4 = __webpack_require__(114);
 	
 	var _movestack = __webpack_require__(118);
 	
@@ -3491,7 +3518,7 @@
 	
 	              placement = _step.value;
 	              piecePlacement = new _pieceplacement.PiecePlacement(piece, placement);
-	              _move = new _move3.Move(piecePlacement);
+	              _move = new _move4.Move(piecePlacement);
 	
 	              if (!this.isValidMove(_move)) {
 	                _context2.next = 12;
@@ -3548,25 +3575,18 @@
 	      }, allValidMoves, this, [[3, 17, 21, 29], [22,, 24, 28]]);
 	    })
 	  }, {
-	    key: 'withMoveApplied',
-	    value: function withMoveApplied(move, callback) {
-	
-	      var scoreIncrease = this.applyMove(move);
-	      callback(move, scoreIncrease);
-	      this.unApplyMove(move);
-	    }
-	  }, {
-	    key: 'withEachValidMoveApplied',
-	    value: function withEachValidMoveApplied(callback, piece) {
+	    key: 'placesForPiece',
+	    value: function placesForPiece(piece) {
+	      var count = 0;
 	      var _iteratorNormalCompletion2 = true;
 	      var _didIteratorError2 = false;
 	      var _iteratorError2 = undefined;
 	
 	      try {
 	        for (var _iterator2 = (0, _getIterator3.default)(this.allValidMoves(piece)), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var _move2 = _step2.value;
+	          var validMove = _step2.value;
 	
-	          this.withMoveApplied(_move2, callback);
+	          count++;
 	        }
 	      } catch (err) {
 	        _didIteratorError2 = true;
@@ -3579,6 +3599,89 @@
 	        } finally {
 	          if (_didIteratorError2) {
 	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	
+	      return count;
+	    }
+	  }, {
+	    key: 'canSequenceBePlaced',
+	    value: function canSequenceBePlaced(sequence) {
+	      var _this6 = this;
+	
+	      if (sequence.length === 0) {
+	        return true;
+	      }
+	      var firstPiece = sequence[0];
+	      var remainingPieces = sequence.slice(1);
+	      var canSubsequenceBePlaced = false;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+	
+	      try {
+	        for (var _iterator3 = (0, _getIterator3.default)(this.allValidMoves(firstPiece)), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var _move2 = _step3.value;
+	
+	          this.withMoveApplied(_move2, function (m, _) {
+	            if (_this6.canSequenceBePlaced(remainingPieces)) {
+	              canSubsequenceBePlaced = true;
+	            }
+	          });
+	          if (canSubsequenceBePlaced) {
+	            break;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      return canSubsequenceBePlaced;
+	    }
+	  }, {
+	    key: 'withMoveApplied',
+	    value: function withMoveApplied(move, callback) {
+	
+	      var scoreIncrease = this.applyMove(move);
+	      callback(move, scoreIncrease);
+	      this.unApplyMove(move);
+	    }
+	  }, {
+	    key: 'withEachValidMoveApplied',
+	    value: function withEachValidMoveApplied(callback, piece) {
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = (0, _getIterator3.default)(this.allValidMoves(piece)), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var _move3 = _step4.value;
+	
+	          this.withMoveApplied(_move3, callback);
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
 	          }
 	        }
 	      }
@@ -3983,6 +4086,7 @@
 	    this._linesAreCleared = false;
 	    this._lines = [];
 	    this._scoreIncrease = -1;
+	    this._trayIndex = -1;
 	  }
 	
 	  (0, _createClass3.default)(Move, [{
@@ -4040,6 +4144,11 @@
 	      this._applied = applied;
 	    }
 	  }, {
+	    key: 'setTrayIndex',
+	    value: function setTrayIndex(i) {
+	      this._trayIndex = i;
+	    }
+	  }, {
 	    key: 'log',
 	    value: function log() {
 	      return this._piecePlacement.log();
@@ -4048,6 +4157,11 @@
 	    key: 'piecePlacement',
 	    get: function get() {
 	      return this._piecePlacement;
+	    }
+	  }, {
+	    key: 'trayIndex',
+	    get: function get() {
+	      return this._trayIndex;
 	    }
 	  }, {
 	    key: 'applied',
@@ -4656,6 +4770,9 @@
 	    _this._pieces = new Array(_TRAY_SIZE).fill().map(function (_, ii) {
 	      return _this._getNextPiece(ii);
 	    });
+	    _this._known = new Array(_TRAY_SIZE).fill().map(function (_) {
+	      return true;
+	    });
 	    return _this;
 	  }
 	
@@ -4708,10 +4825,70 @@
 	      this._pieces[i] = this._getNextPiece(i);
 	    }
 	  }, {
+	    key: 'withMoveApplied',
+	    value: function withMoveApplied(move, callback) {
+	      this.applyMove(move);
+	      callback();
+	      this.unapplyMove(move);
+	    }
+	  }, {
+	    key: 'applyMove',
+	    value: function applyMove(move) {
+	      var ii = this.getMoveIndex(move);
+	      this._known[ii] = false;
+	    }
+	  }, {
+	    key: 'unapplyMove',
+	    value: function unapplyMove(move) {
+	      var ii = this.getMoveIndex(move);
+	      this._known[ii] = true;
+	    }
+	  }, {
 	    key: 'commitMove',
 	    value: function commitMove(move) {
+	      this._replacePiece(this.getMoveIndex(move));
+	    }
+	  }, {
+	    key: 'forEachPieceApplied',
+	    value: function forEachPieceApplied(callback) {
 	      var _this2 = this;
 	
+	      this._pieces.forEach(function (piece, i) {
+	        _this2._known[i] = false;
+	        callback(piece);
+	        _this2._known[i] = true;
+	      });
+	    }
+	  }, {
+	    key: 'forEachKnownPiece',
+	    value: function forEachKnownPiece(callback) {
+	      var _this3 = this;
+	
+	      this._pieces.forEach(function (piece, i) {
+	        if (_this3._known[i]) {
+	          callback(piece);
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'forEachUnknownTrayPiece',
+	    value: function forEachUnknownTrayPiece(callback) {
+	      var _this4 = this;
+	
+	      this._pieces.forEach(function (piece, i) {
+	        if (!_this4._known[i]) {
+	          _piecedefinitions.PieceDefinitions.forEachDefinition(callback);
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'getMoveIndex',
+	    value: function getMoveIndex(move) {
+	      var _this5 = this;
+	
+	      if (move.trayIndex !== -1) {
+	        return move.trayIndex;
+	      }
 	      var movePiece = move.piecePlacement.piece;
 	      var ii = -1;
 	      this._pieces.forEach(function (trayPiece, i) {
@@ -4719,10 +4896,11 @@
 	          ii = i;
 	        }
 	      });
-	      (0, _debug.Assert)(ii !== -1, 'Cannot commit invalid move to tray', function () {
-	        return _this2.log();
+	      (0, _debug.Assert)(ii !== -1, 'Invalid move for tray', function () {
+	        return [_this5.log(), move.log()];
 	      });
-	      this._replacePiece(ii);
+	      move.setTrayIndex(ii);
+	      return move.trayIndex;
 	    }
 	  }, {
 	    key: 'render',
@@ -5230,178 +5408,8 @@
 	}
 
 /***/ },
-/* 129 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.StrategyStore = undefined;
-	
-	var _getIterator2 = __webpack_require__(98);
-	
-	var _getIterator3 = _interopRequireDefault(_getIterator2);
-	
-	var _classCallCheck2 = __webpack_require__(28);
-	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(29);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
-	
-	var _strategy = __webpack_require__(130);
-	
-	var _randomheuristicstrategy = __webpack_require__(132);
-	
-	var _scoreheuristicstrategy = __webpack_require__(136);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	// ---------------------------------
-	
-	// --------- Strategies ------------
-	var StrategyConfigs = [
-	// First element is default
-	new _strategy.StrategyConfig('Points', function (hook, debug) {
-	  return new _scoreheuristicstrategy.ScoreHeuristicStrategy(hook, debug);
-	}), new _strategy.StrategyConfig('Random', function (hook, debug) {
-	  return new _randomheuristicstrategy.RandomHeuristicStrategy(hook, debug);
-	})];
-	
-	var StrategyStore = exports.StrategyStore = function () {
-	  function StrategyStore() {
-	    (0, _classCallCheck3.default)(this, StrategyStore);
-	  }
-	
-	  (0, _createClass3.default)(StrategyStore, null, [{
-	    key: 'strategyConfigs',
-	    value: function strategyConfigs() {
-	      return StrategyConfigs;
-	    }
-	  }, {
-	    key: 'getDefaultStrategyConfig',
-	    value: function getDefaultStrategyConfig() {
-	      return StrategyConfigs[0];
-	    }
-	  }, {
-	    key: 'getByName',
-	    value: function getByName(name) {
-	      var _iteratorNormalCompletion = true;
-	      var _didIteratorError = false;
-	      var _iteratorError = undefined;
-	
-	      try {
-	        for (var _iterator = (0, _getIterator3.default)(StrategyStore.strategyConfigs()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var strategyConfig = _step.value;
-	
-	          if (strategyConfig.name === name) {
-	            return strategyConfig;
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError = true;
-	        _iteratorError = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion && _iterator.return) {
-	            _iterator.return();
-	          }
-	        } finally {
-	          if (_didIteratorError) {
-	            throw _iteratorError;
-	          }
-	        }
-	      }
-	
-	      return null;
-	    }
-	  }]);
-	  return StrategyStore;
-	}();
-
-/***/ },
-/* 130 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.StrategyConfig = exports.Strategy = undefined;
-	
-	var _classCallCheck2 = __webpack_require__(28);
-	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(29);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
-	
-	var _gameview = __webpack_require__(131);
-	
-	var _move = __webpack_require__(114);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var Strategy = exports.Strategy = function () {
-	  function Strategy(hook, debug) {
-	    (0, _classCallCheck3.default)(this, Strategy);
-	
-	    this._hook = hook;
-	    this._debug = debug;
-	  }
-	
-	  (0, _createClass3.default)(Strategy, [{
-	    key: 'chooseMove',
-	    value: function chooseMove(view) {
-	      throw 'abstract';
-	    }
-	  }, {
-	    key: 'explain',
-	    value: function explain(view) {
-	      throw 'abstract';
-	    }
-	  }, {
-	    key: 'show',
-	    value: function show(view) {
-	      if (this._shownElement != null) {
-	        this._shownElement.remove();
-	      }
-	      var elem = this.explain(view);
-	      this._hook.appendChild(elem);
-	      this._shownElement = elem;
-	    }
-	  }]);
-	  return Strategy;
-	}();
-	
-	var StrategyConfig = exports.StrategyConfig = function () {
-	  function StrategyConfig(name, strategyConstructor) {
-	    (0, _classCallCheck3.default)(this, StrategyConfig);
-	
-	    this._name = name;
-	    this._strategyConstructor = strategyConstructor;
-	  }
-	
-	  (0, _createClass3.default)(StrategyConfig, [{
-	    key: 'getStrategy',
-	    value: function getStrategy(hook, debug) {
-	      return this._strategyConstructor(hook, debug);
-	    }
-	  }, {
-	    key: 'name',
-	    get: function get() {
-	      return this._name;
-	    }
-	  }]);
-	  return StrategyConfig;
-	}();
-
-/***/ },
+/* 129 */,
+/* 130 */,
 /* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -5412,244 +5420,8 @@
 	var _piece = __webpack_require__(116);
 
 /***/ },
-/* 132 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.RandomHeuristicStrategy = undefined;
-	
-	var _getPrototypeOf = __webpack_require__(2);
-	
-	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-	
-	var _classCallCheck2 = __webpack_require__(28);
-	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(29);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
-	
-	var _possibleConstructorReturn2 = __webpack_require__(33);
-	
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-	
-	var _inherits2 = __webpack_require__(84);
-	
-	var _inherits3 = _interopRequireDefault(_inherits2);
-	
-	var _gameview = __webpack_require__(131);
-	
-	var _heuristicstrategy = __webpack_require__(133);
-	
-	var _move = __webpack_require__(114);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var RandomHeuristicStrategy = exports.RandomHeuristicStrategy = function (_HeuristicStrategy) {
-	  (0, _inherits3.default)(RandomHeuristicStrategy, _HeuristicStrategy);
-	
-	  function RandomHeuristicStrategy() {
-	    (0, _classCallCheck3.default)(this, RandomHeuristicStrategy);
-	    return (0, _possibleConstructorReturn3.default)(this, (RandomHeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(RandomHeuristicStrategy)).apply(this, arguments));
-	  }
-	
-	  (0, _createClass3.default)(RandomHeuristicStrategy, [{
-	    key: 'heuristic',
-	    value: function heuristic(view, move) {
-	      return 100 * Math.random();
-	    }
-	  }]);
-	  return RandomHeuristicStrategy;
-	}(_heuristicstrategy.HeuristicStrategy);
-
-/***/ },
-/* 133 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.HeuristicStrategy = undefined;
-	
-	var _getPrototypeOf = __webpack_require__(2);
-	
-	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-	
-	var _classCallCheck2 = __webpack_require__(28);
-	
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
-	var _createClass2 = __webpack_require__(29);
-	
-	var _createClass3 = _interopRequireDefault(_createClass2);
-	
-	var _possibleConstructorReturn2 = __webpack_require__(33);
-	
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-	
-	var _inherits2 = __webpack_require__(84);
-	
-	var _inherits3 = _interopRequireDefault(_inherits2);
-	
-	var _gameview = __webpack_require__(131);
-	
-	var _move = __webpack_require__(114);
-	
-	var _strategy = __webpack_require__(130);
-	
-	var _domutils = __webpack_require__(128);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var ROWS_EXPANDED_BY_DEFAULT = 3;
-	var TOGGLE_ARROW_EXPANDED = '▼';
-	var TOGGLE_ARROW_COLLAPSED = '▶';
-	
-	var HeuristicStrategy = exports.HeuristicStrategy = function (_Strategy) {
-	  (0, _inherits3.default)(HeuristicStrategy, _Strategy);
-	
-	  function HeuristicStrategy() {
-	    (0, _classCallCheck3.default)(this, HeuristicStrategy);
-	    return (0, _possibleConstructorReturn3.default)(this, (HeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(HeuristicStrategy)).apply(this, arguments));
-	  }
-	
-	  (0, _createClass3.default)(HeuristicStrategy, [{
-	    key: 'baseline',
-	    value: function baseline(view) {}
-	  }, {
-	    key: 'heuristic',
-	    value: function heuristic(view, move) {
-	      throw 'abstract';
-	    }
-	  }, {
-	    key: 'explain',
-	    value: function explain(view) {
-	      var _this2 = this;
-	
-	      var scoredMoves = this._getScoredMoves(view);
-	      var explainDiv = (0, _domutils.makeDiv)(['ai-heuristic-explain']);
-	      var table = document.createElement('table');
-	
-	      var headTR = document.createElement('tr');
-	      var emptyTH = document.createElement('th');
-	      var scoreTH = document.createElement('th');
-	      scoreTH.appendChild((0, _domutils.makeDiv)(null, null, 'Score'));
-	      var boardTH = document.createElement('th');
-	      boardTH.appendChild((0, _domutils.makeDiv)(null, null, 'Board'));
-	      headTR.appendChild(emptyTH);
-	      headTR.appendChild(scoreTH);
-	      headTR.appendChild(boardTH);
-	      table.appendChild(headTR);
-	
-	      scoredMoves.forEach(function (scoredMove, i) {
-	        var expanded = i < ROWS_EXPANDED_BY_DEFAULT;
-	
-	        var tr = document.createElement('tr');
-	        tr.className = expanded ? 'expanded' : 'collapsed';
-	
-	        var score = scoredMove.score;
-	        var move = scoredMove.move;
-	
-	        var toggleTD = document.createElement('td');
-	        var toggleA = document.createElement('a');
-	        var toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
-	        toggleA.appendChild(toggleDiv);
-	        toggleA.href = '#';
-	        toggleA.onclick = function () {
-	          expanded = !expanded;
-	          toggleA.removeChild(toggleDiv);
-	          toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
-	          toggleA.appendChild(toggleDiv);
-	          tr.className = expanded ? 'expanded' : 'collapsed';
-	        };
-	        toggleTD.appendChild(toggleA);
-	
-	        var scoreTD = document.createElement('td');
-	        scoreTD.appendChild((0, _domutils.makeDiv)(['ai-heuristic-explain-score-div'], null, score.toFixed(2)));
-	
-	        var moveTD = document.createElement('td');
-	        var moveDiv = (0, _domutils.makeDiv)(['move']);
-	        moveDiv.appendChild(_this2._getGameElementWithMoveApplied(view, move));
-	        moveTD.appendChild(moveDiv);
-	
-	        tr.appendChild(toggleTD);
-	        tr.appendChild(scoreTD);
-	        tr.appendChild(moveTD);
-	        table.appendChild(tr);
-	      });
-	      explainDiv.appendChild(table);
-	      return explainDiv;
-	    }
-	  }, {
-	    key: '_getGameElementWithMoveApplied',
-	    value: function _getGameElementWithMoveApplied(view, move) {
-	      var elem = (0, _domutils.makeDiv)();
-	      view.withMoveApplied(move, function () {
-	        elem = view.render();
-	      });
-	      return elem;
-	    }
-	  }, {
-	    key: 'chooseMove',
-	    value: function chooseMove(view) {
-	      var scoredMoves = this._getScoredMoves(view);
-	      return scoredMoves[0].move;
-	    }
-	  }, {
-	    key: '_getScoredMoves',
-	    value: function _getScoredMoves(view) {
-	      var _this3 = this;
-	
-	      var encoded = view.encode();
-	      if (this._cachedHeuristicsCode != null && this._cachedHeuristicsCode === encoded && this._cachedHeuristics != null) {
-	        return this._cachedHeuristics;
-	      }
-	
-	      this.baseline(view);
-	      var scoredMoves = [];
-	      view.withEachValidMoveApplied(function (move) {
-	        var score = _this3.heuristic(view, move);
-	        scoredMoves.push({ move: move, score: score });
-	      });
-	      scoredMoves.sort(function (a, b) {
-	        return a.score > b.score ? -1 : 1;
-	      });
-	
-	      this._cachedHeuristicsCode = encoded;
-	      this._cachedHeuristics = scoredMoves;
-	      return this._cachedHeuristics;
-	    }
-	  }, {
-	    key: '_logScoredMove',
-	    value: function _logScoredMove(scoredMove) {
-	      var score = scoredMove.score;
-	      var move = scoredMove.move;
-	      var piecePlacement = move.piecePlacement;
-	      var piece = piecePlacement.piece;
-	      var placement = piecePlacement.placement;
-	      return [score, piece.log(), placement.log()];
-	    }
-	  }, {
-	    key: '_logScoredMoves',
-	    value: function _logScoredMoves(scoredMoves) {
-	      var _this4 = this;
-	
-	      console.log('Scored', scoredMoves.map(function (scoredMove) {
-	        return _this4._logScoredMove(scoredMove);
-	      }));
-	    }
-	  }]);
-	  return HeuristicStrategy;
-	}(_strategy.Strategy);
-
-/***/ },
+/* 132 */,
+/* 133 */,
 /* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -5715,6 +5487,26 @@
 	
 	  this.getScore = function () {
 	    return state.score;
+	  };
+	
+	  this.forEachKnownTrayPiece = function (callback) {
+	    return state.forEachKnownTrayPiece(callback);
+	  };
+	
+	  this.forEachUnknownTrayPiece = function (callback) {
+	    return state.forEachUnknownTrayPiece(callback);
+	  };
+	
+	  this.placesForPiece = function (piece) {
+	    return state.placesForPiece(piece);
+	  };
+	
+	  this.canPieceBePlaced = function (piece) {
+	    return state.canPieceBePlaced(piece);
+	  };
+	
+	  this.canSequenceBePlaced = function (sequence) {
+	    return state.canSequenceBePlaced(sequence);
 	  };
 	};
 
@@ -6041,7 +5833,426 @@
 	var Lines = [new Line(new _point.Point(0, 0), 'Horizontal'), new Line(new _point.Point(1, 0), 'Horizontal'), new Line(new _point.Point(2, 0), 'Horizontal'), new Line(new _point.Point(3, 0), 'Horizontal'), new Line(new _point.Point(4, 0), 'Horizontal'), new Line(new _point.Point(5, 0), 'Horizontal'), new Line(new _point.Point(6, 0), 'Horizontal'), new Line(new _point.Point(7, 0), 'Horizontal'), new Line(new _point.Point(8, 0), 'Horizontal'), new Line(new _point.Point(0, 0), 'DownRight'), new Line(new _point.Point(1, 0), 'DownRight'), new Line(new _point.Point(2, 0), 'DownRight'), new Line(new _point.Point(3, 0), 'DownRight'), new Line(new _point.Point(4, 0), 'DownRight'), new Line(new _point.Point(0, 1), 'DownRight'), new Line(new _point.Point(0, 2), 'DownRight'), new Line(new _point.Point(0, 3), 'DownRight'), new Line(new _point.Point(0, 4), 'DownRight'), new Line(new _point.Point(4, 0), 'UpRight'), new Line(new _point.Point(5, 0), 'UpRight'), new Line(new _point.Point(6, 0), 'UpRight'), new Line(new _point.Point(7, 0), 'UpRight'), new Line(new _point.Point(8, 0), 'UpRight'), new Line(new _point.Point(8, 1), 'UpRight'), new Line(new _point.Point(8, 2), 'UpRight'), new Line(new _point.Point(8, 3), 'UpRight'), new Line(new _point.Point(8, 4), 'UpRight')];
 
 /***/ },
-/* 136 */
+/* 136 */,
+/* 137 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.StrategyStore = undefined;
+	
+	var _getIterator2 = __webpack_require__(98);
+	
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _strategy = __webpack_require__(138);
+	
+	var _randomheuristicstrategy = __webpack_require__(139);
+	
+	var _scoreheuristicstrategy = __webpack_require__(141);
+	
+	var _expectedPlaceablePieces = __webpack_require__(142);
+	
+	var _numPlaceable = __webpack_require__(144);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// ---------------------------------
+	
+	// --------- Strategies ------------
+	var StrategyConfigs = [
+	// First element is default
+	new _strategy.StrategyConfig('NP', function (hook, debug) {
+	  return new _numPlaceable.NumPlaceable(hook, debug);
+	}), new _strategy.StrategyConfig('EPP', function (hook, debug) {
+	  return new _expectedPlaceablePieces.ExpectedPlaceablePieces(hook, debug);
+	}), new _strategy.StrategyConfig('Points', function (hook, debug) {
+	  return new _scoreheuristicstrategy.ScoreHeuristicStrategy(hook, debug);
+	}), new _strategy.StrategyConfig('Random', function (hook, debug) {
+	  return new _randomheuristicstrategy.RandomHeuristicStrategy(hook, debug);
+	})];
+	
+	var StrategyStore = exports.StrategyStore = function () {
+	  function StrategyStore() {
+	    (0, _classCallCheck3.default)(this, StrategyStore);
+	  }
+	
+	  (0, _createClass3.default)(StrategyStore, null, [{
+	    key: 'strategyConfigs',
+	    value: function strategyConfigs() {
+	      return StrategyConfigs;
+	    }
+	  }, {
+	    key: 'getDefaultStrategyConfig',
+	    value: function getDefaultStrategyConfig() {
+	      return StrategyConfigs[0];
+	    }
+	  }, {
+	    key: 'getByName',
+	    value: function getByName(name) {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(StrategyStore.strategyConfigs()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var strategyConfig = _step.value;
+	
+	          if (strategyConfig.name === name) {
+	            return strategyConfig;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      return null;
+	    }
+	  }]);
+	  return StrategyStore;
+	}();
+
+/***/ },
+/* 138 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.StrategyConfig = exports.Strategy = undefined;
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _move = __webpack_require__(114);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Strategy = exports.Strategy = function () {
+	  function Strategy(hook, debug) {
+	    (0, _classCallCheck3.default)(this, Strategy);
+	
+	    this._hook = hook;
+	    this._debug = debug;
+	  }
+	
+	  (0, _createClass3.default)(Strategy, [{
+	    key: 'chooseMove',
+	    value: function chooseMove(view) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'explain',
+	    value: function explain(view) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'show',
+	    value: function show(view) {
+	      if (this._shownElement != null) {
+	        this._shownElement.remove();
+	      }
+	      var elem = this.explain(view);
+	      this._hook.appendChild(elem);
+	      this._shownElement = elem;
+	    }
+	  }]);
+	  return Strategy;
+	}();
+	
+	var StrategyConfig = exports.StrategyConfig = function () {
+	  function StrategyConfig(name, strategyConstructor) {
+	    (0, _classCallCheck3.default)(this, StrategyConfig);
+	
+	    this._name = name;
+	    this._strategyConstructor = strategyConstructor;
+	  }
+	
+	  (0, _createClass3.default)(StrategyConfig, [{
+	    key: 'getStrategy',
+	    value: function getStrategy(hook, debug) {
+	      return this._strategyConstructor(hook, debug);
+	    }
+	  }, {
+	    key: 'name',
+	    get: function get() {
+	      return this._name;
+	    }
+	  }]);
+	  return StrategyConfig;
+	}();
+
+/***/ },
+/* 139 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.RandomHeuristicStrategy = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _heuristicstrategy = __webpack_require__(140);
+	
+	var _move = __webpack_require__(114);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var RandomHeuristicStrategy = exports.RandomHeuristicStrategy = function (_HeuristicStrategy) {
+	  (0, _inherits3.default)(RandomHeuristicStrategy, _HeuristicStrategy);
+	
+	  function RandomHeuristicStrategy() {
+	    (0, _classCallCheck3.default)(this, RandomHeuristicStrategy);
+	    return (0, _possibleConstructorReturn3.default)(this, (RandomHeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(RandomHeuristicStrategy)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(RandomHeuristicStrategy, [{
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      return 100 * Math.random();
+	    }
+	  }]);
+	  return RandomHeuristicStrategy;
+	}(_heuristicstrategy.HeuristicStrategy);
+
+/***/ },
+/* 140 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.HeuristicStrategy = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _move = __webpack_require__(114);
+	
+	var _strategy = __webpack_require__(138);
+	
+	var _domutils = __webpack_require__(128);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ROWS_EXPANDED_BY_DEFAULT = 3;
+	var TOGGLE_ARROW_EXPANDED = '▼';
+	var TOGGLE_ARROW_COLLAPSED = '▶';
+	
+	var HeuristicStrategy = exports.HeuristicStrategy = function (_Strategy) {
+	  (0, _inherits3.default)(HeuristicStrategy, _Strategy);
+	
+	  function HeuristicStrategy() {
+	    (0, _classCallCheck3.default)(this, HeuristicStrategy);
+	    return (0, _possibleConstructorReturn3.default)(this, (HeuristicStrategy.__proto__ || (0, _getPrototypeOf2.default)(HeuristicStrategy)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(HeuristicStrategy, [{
+	    key: 'baseline',
+	    value: function baseline(view) {}
+	  }, {
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      throw 'abstract';
+	    }
+	  }, {
+	    key: 'explain',
+	    value: function explain(view) {
+	      var _this2 = this;
+	
+	      var scoredMoves = this._getScoredMoves(view);
+	      var explainDiv = (0, _domutils.makeDiv)(['ai-heuristic-explain']);
+	      var table = document.createElement('table');
+	
+	      var headTR = document.createElement('tr');
+	      var emptyTH = document.createElement('th');
+	      var scoreTH = document.createElement('th');
+	      scoreTH.appendChild((0, _domutils.makeDiv)(null, null, 'Score'));
+	      var boardTH = document.createElement('th');
+	      boardTH.appendChild((0, _domutils.makeDiv)(null, null, 'Board'));
+	      headTR.appendChild(emptyTH);
+	      headTR.appendChild(scoreTH);
+	      headTR.appendChild(boardTH);
+	      table.appendChild(headTR);
+	
+	      scoredMoves.forEach(function (scoredMove, i) {
+	        var expanded = i < ROWS_EXPANDED_BY_DEFAULT;
+	
+	        var tr = document.createElement('tr');
+	        tr.className = expanded ? 'expanded' : 'collapsed';
+	
+	        var score = scoredMove.score;
+	        var move = scoredMove.move;
+	
+	        var toggleTD = document.createElement('td');
+	        var toggleA = document.createElement('a');
+	        var toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
+	        toggleA.appendChild(toggleDiv);
+	        toggleA.href = '#';
+	        toggleA.onclick = function () {
+	          expanded = !expanded;
+	          toggleA.removeChild(toggleDiv);
+	          toggleDiv = (0, _domutils.makeDiv)(['toggle'], null, expanded ? TOGGLE_ARROW_EXPANDED : TOGGLE_ARROW_COLLAPSED);
+	          toggleA.appendChild(toggleDiv);
+	          tr.className = expanded ? 'expanded' : 'collapsed';
+	        };
+	        toggleTD.appendChild(toggleA);
+	
+	        var scoreTD = document.createElement('td');
+	        scoreTD.appendChild((0, _domutils.makeDiv)(['ai-heuristic-explain-score-div'], null, score.toFixed(2)));
+	
+	        var moveTD = document.createElement('td');
+	        var moveDiv = (0, _domutils.makeDiv)(['move']);
+	        moveDiv.appendChild(_this2._getGameElementWithMoveApplied(view, move));
+	        moveTD.appendChild(moveDiv);
+	
+	        tr.appendChild(toggleTD);
+	        tr.appendChild(scoreTD);
+	        tr.appendChild(moveTD);
+	        table.appendChild(tr);
+	      });
+	      explainDiv.appendChild(table);
+	      return explainDiv;
+	    }
+	  }, {
+	    key: '_getGameElementWithMoveApplied',
+	    value: function _getGameElementWithMoveApplied(view, move) {
+	      var elem = (0, _domutils.makeDiv)();
+	      view.withMoveApplied(move, function () {
+	        elem = view.render();
+	      });
+	      return elem;
+	    }
+	  }, {
+	    key: 'chooseMove',
+	    value: function chooseMove(view) {
+	      var scoredMoves = this._getScoredMoves(view);
+	      return scoredMoves[0].move;
+	    }
+	  }, {
+	    key: '_getScoredMoves',
+	    value: function _getScoredMoves(view) {
+	      var _this3 = this;
+	
+	      var encoded = view.encode();
+	      if (this._cachedHeuristicsCode != null && this._cachedHeuristicsCode === encoded && this._cachedHeuristics != null) {
+	        return this._cachedHeuristics;
+	      }
+	
+	      this.baseline(view);
+	      var scoredMoves = [];
+	      view.withEachValidMoveApplied(function (move) {
+	        var score = _this3.heuristic(view, move);
+	        scoredMoves.push({ move: move, score: score });
+	      });
+	      scoredMoves.sort(function (a, b) {
+	        return a.score > b.score ? -1 : 1;
+	      });
+	
+	      this._cachedHeuristicsCode = encoded;
+	      this._cachedHeuristics = scoredMoves;
+	      return this._cachedHeuristics;
+	    }
+	  }, {
+	    key: '_logScoredMove',
+	    value: function _logScoredMove(scoredMove) {
+	      var score = scoredMove.score;
+	      var move = scoredMove.move;
+	      var piecePlacement = move.piecePlacement;
+	      var piece = piecePlacement.piece;
+	      var placement = piecePlacement.placement;
+	      return [score, piece.log(), placement.log()];
+	    }
+	  }, {
+	    key: '_logScoredMoves',
+	    value: function _logScoredMoves(scoredMoves) {
+	      var _this4 = this;
+	
+	      console.log('Scored', scoredMoves.map(function (scoredMove) {
+	        return _this4._logScoredMove(scoredMove);
+	      }));
+	    }
+	  }]);
+	  return HeuristicStrategy;
+	}(_strategy.Strategy);
+
+/***/ },
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6073,7 +6284,7 @@
 	
 	var _gameview = __webpack_require__(131);
 	
-	var _heuristicstrategy = __webpack_require__(133);
+	var _heuristicstrategy = __webpack_require__(140);
 	
 	var _move = __webpack_require__(114);
 	
@@ -6108,6 +6319,155 @@
 	    }
 	  }]);
 	  return ScoreHeuristicStrategy;
+	}(_heuristicstrategy.HeuristicStrategy);
+
+/***/ },
+/* 142 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.ExpectedPlaceablePieces = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _heuristicstrategy = __webpack_require__(140);
+	
+	var _move = __webpack_require__(114);
+	
+	var _piece = __webpack_require__(116);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ExpectedPlaceablePieces = exports.ExpectedPlaceablePieces = function (_HeuristicStrategy) {
+	  (0, _inherits3.default)(ExpectedPlaceablePieces, _HeuristicStrategy);
+	
+	  function ExpectedPlaceablePieces() {
+	    (0, _classCallCheck3.default)(this, ExpectedPlaceablePieces);
+	    return (0, _possibleConstructorReturn3.default)(this, (ExpectedPlaceablePieces.__proto__ || (0, _getPrototypeOf2.default)(ExpectedPlaceablePieces)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(ExpectedPlaceablePieces, [{
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      var E = 0;
+	      view.forEachKnownTrayPiece(function (piece) {
+	        if (view.placesForPiece(piece) > 0) {
+	          E++;
+	        }
+	      });
+	      view.forEachUnknownTrayPiece(function (piece, probability) {
+	        if (view.placesForPiece(piece) > 0) {
+	          E += probability;
+	        }
+	      });
+	      return E;
+	    }
+	  }]);
+	  return ExpectedPlaceablePieces;
+	}(_heuristicstrategy.HeuristicStrategy);
+
+/***/ },
+/* 143 */,
+/* 144 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.NumPlaceable = undefined;
+	
+	var _getPrototypeOf = __webpack_require__(2);
+	
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+	
+	var _classCallCheck2 = __webpack_require__(28);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(29);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _possibleConstructorReturn2 = __webpack_require__(33);
+	
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+	
+	var _inherits2 = __webpack_require__(84);
+	
+	var _inherits3 = _interopRequireDefault(_inherits2);
+	
+	var _gameview = __webpack_require__(131);
+	
+	var _heuristicstrategy = __webpack_require__(140);
+	
+	var _move = __webpack_require__(114);
+	
+	var _piece = __webpack_require__(116);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var NumPlaceable = exports.NumPlaceable = function (_HeuristicStrategy) {
+	  (0, _inherits3.default)(NumPlaceable, _HeuristicStrategy);
+	
+	  function NumPlaceable() {
+	    (0, _classCallCheck3.default)(this, NumPlaceable);
+	    return (0, _possibleConstructorReturn3.default)(this, (NumPlaceable.__proto__ || (0, _getPrototypeOf2.default)(NumPlaceable)).apply(this, arguments));
+	  }
+	
+	  (0, _createClass3.default)(NumPlaceable, [{
+	    key: 'canPlaceBoth',
+	    value: function canPlaceBoth(view, known) {
+	      return view.canSequenceBePlaced([known[0], known[1]]) || view.canSequenceBePlaced([known[1], known[0]]);
+	    }
+	  }, {
+	    key: 'canPlaceOne',
+	    value: function canPlaceOne(view, known) {
+	      return view.canSequenceBePlaced([known[0]]) || view.canSequenceBePlaced([known[1]]);
+	    }
+	  }, {
+	    key: 'heuristic',
+	    value: function heuristic(view, move) {
+	      var known = [];
+	      view.forEachKnownTrayPiece(function (piece) {
+	        known.push(piece);
+	      });
+	
+	      if (!this.canPlaceOne(view, known)) {
+	        return 0;
+	      } else if (!this.canPlaceBoth(view, known)) {
+	        return 1;
+	      } else {
+	        return 2;
+	      }
+	    }
+	  }]);
+	  return NumPlaceable;
 	}(_heuristicstrategy.HeuristicStrategy);
 
 /***/ }

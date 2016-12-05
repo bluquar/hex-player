@@ -193,6 +193,38 @@ export class Board extends Renderable {
     }
   }
 
+  placesForPiece(
+    piece: Piece,
+  ): number {
+    let count = 0;
+    for (let validMove of this.allValidMoves(piece)) {
+      count++;
+    }
+    return count;
+  }
+
+  canSequenceBePlaced(
+    sequence: Piece[],
+  ): boolean {
+    if (sequence.length === 0) {
+      return true;
+    }
+    const firstPiece = sequence[0];
+    const remainingPieces = sequence.slice(1);
+    let canSubsequenceBePlaced = false;
+    for (let move of this.allValidMoves(firstPiece)) {
+      this.withMoveApplied(move, (m, _) => {
+        if (this.canSequenceBePlaced(remainingPieces)) {
+          canSubsequenceBePlaced = true;
+        }
+      });
+      if (canSubsequenceBePlaced) {
+        break;
+      }
+    }
+    return canSubsequenceBePlaced;
+  }
+
   withMoveApplied(
     move: Move,
     callback: (

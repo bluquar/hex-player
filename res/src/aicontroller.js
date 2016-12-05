@@ -1,12 +1,12 @@
 import {GraphicPoint} from 'graphicpoint.js';
 import {Renderable} from 'renderable.js';
-import {StrategyStore} from 'strategystore.js';
+import {StrategyStore} from 'strategies/strategystore.js';
 
 import {makeDiv} from 'domutils.js';
 
 import type {GameView} from 'gameview.js';
 import type {Loggable} from 'renderable.js';
-import type {Strategy, StrategyConfig} from 'strategy.js';
+import type {Strategy, StrategyConfig} from 'strategies/strategy.js';
 
 const DEBUG_MODE = true;
 

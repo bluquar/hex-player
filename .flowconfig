@@ -1,5 +1,5 @@
 [include]
-<PROJECT_ROOT>/res/src/.*\.js
+<PROJECT_ROOT>/res/src/.*.js
 
 [ignore]
 <PROJECT_ROOT>/node_modules/.*

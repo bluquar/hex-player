@@ -19,6 +19,7 @@ export class Move {
   _linesAreCleared: boolean;
   _lines: LineClearHistory[];
   _scoreIncrease: number;
+  _trayIndex: number;
 
   constructor(piecePlacement: PiecePlacement) {
     this._piecePlacement = piecePlacement;
@@ -27,6 +28,7 @@ export class Move {
     this._linesAreCleared = false;
     this._lines = [];
     this._scoreIncrease = -1;
+    this._trayIndex = -1;
   }
 
   get piecePlacement(): PiecePlacement {
@@ -82,6 +84,14 @@ export class Move {
 
   setApplied(applied: boolean): void {
     this._applied = applied;
+  }
+
+  setTrayIndex(i: number): void {
+    this._trayIndex = i;
+  }
+
+  get trayIndex(): number {
+    return this._trayIndex;
   }
 
   get applied(): boolean {

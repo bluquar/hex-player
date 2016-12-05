@@ -33,6 +33,29 @@ export class GameStateViewer {
 
   getScore: () => number;
 
+  forEachKnownTrayPiece: (
+    callback: (piece: Piece) => void,
+  ) => void;
+
+  forEachUnknownTrayPiece: (
+    callback: (
+      piece: Piece,
+      probability: number,
+    ) => void,
+  ) => void;
+
+  placesForPiece: (
+    piece: Piece,
+  ) => number;
+
+  canPieceBePlaced: (
+    piece: Piece,
+  ) => boolean;
+
+  canSequenceBePlaced: (
+    sequence: Piece[],
+  ) => boolean;
+
   constructor(state: GameState) {
     this.gameIsOver = () => {
       return state.gameIsOver();
@@ -72,6 +95,26 @@ export class GameStateViewer {
 
     this.getScore = () => {
       return state.score;
-    }
+    };
+
+    this.forEachKnownTrayPiece = (callback) => {
+      return state.forEachKnownTrayPiece(callback);
+    };
+
+    this.forEachUnknownTrayPiece = (callback) => {
+      return state.forEachUnknownTrayPiece(callback);
+    };
+
+    this.placesForPiece = (piece) => {
+      return state.placesForPiece(piece);
+    };
+
+    this.canPieceBePlaced = (piece) => {
+      return state.canPieceBePlaced(piece);
+    };
+
+    this.canSequenceBePlaced = (sequence) => {
+      return state.canSequenceBePlaced(sequence);
+    };
   }
 }

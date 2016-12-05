@@ -31,4 +31,27 @@ export interface GameView {
   encode: () => string;
 
   getScore: () => number;
+
+  forEachKnownTrayPiece: (
+    callback: (piece: Piece) => void,
+  ) => void;
+
+  forEachUnknownTrayPiece: (
+    callback: (
+      piece: Piece,
+      probability: number,
+    ) => void,
+  ) => void;
+
+  placesForPiece: (
+    piece: Piece,
+  ) => number;
+
+  canPieceBePlaced: (
+    piece: Piece,
+  ) => boolean;
+
+  canSequenceBePlaced: (
+    sequence: Piece[],
+  ) => boolean;
 }

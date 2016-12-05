@@ -1,5 +1,6 @@
 import {GameView} from 'gameview.js';
-import {HeuristicStrategy} from 'heuristicstrategy.js';
+import {HeuristicStrategy} 
+  from 'strategies/heuristics/heuristicstrategy.js';
 import {Move} from 'move.js';
 
 export class ScoreHeuristicStrategy extends HeuristicStrategy {

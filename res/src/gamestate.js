@@ -72,16 +72,18 @@ export class GameState extends Renderable {
     move: Move,
     callback: () => void,
   ): void {
-    this.board.withMoveApplied(
-      move, (
-        move: Move,
-        scoreIncrease: number,
-      ) => {
-        this._score += scoreIncrease;
-        callback();
-        this._score -= scoreIncrease;
-      },
-    );
+    this.tray.withMoveApplied(move, () => {
+      this.board.withMoveApplied(
+        move, (
+          move: Move,
+          scoreIncrease: number,
+        ) => {
+          this._score += scoreIncrease;
+          callback();
+          this._score -= scoreIncrease;
+        },
+      );
+    });
   }
 
   isValidCommit(move: Move): boolean {
@@ -102,7 +104,34 @@ export class GameState extends Renderable {
   forEachPieceInTray(
     callback: (piece: Piece) => void,
   ): void {
-    this.tray.forEachPiece(callback);
+    this.tray.forEachPieceApplied(callback);
+  }
+
+  forEachKnownTrayPiece(
+    callback:(piece: Piece) => void,
+  ): void {
+    this.tray.forEachKnownPiece(callback);
+  }
+
+  forEachUnknownTrayPiece(
+    callback: (
+      piece: Piece,
+      probability: number,
+    ) => void,
+  ): void {
+    this.tray.forEachUnknownTrayPiece(callback);
+  }
+
+  placesForPiece(piece: Piece): number {
+    return this.board.placesForPiece(piece);
+  }
+
+  canPieceBePlaced(piece: Piece): boolean {
+    return this.board.canSequenceBePlaced([piece]);
+  }
+
+  canSequenceBePlaced(sequence: Piece[]): boolean {
+    return this.board.canSequenceBePlaced(sequence);
   }
 
   refresh(): void {

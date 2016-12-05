@@ -1,15 +1,36 @@
 import {
   Strategy,
   StrategyConfig,
-} from 'strategy.js';
+} from 'strategies/strategy.js';
 
 // --------- Strategies ------------
-import {RandomHeuristicStrategy} from 'randomheuristicstrategy.js';
-import {ScoreHeuristicStrategy} from 'scoreheuristicstrategy.js';
+import {RandomHeuristicStrategy} 
+  from 'strategies/heuristics/randomheuristicstrategy.js';
+
+import {ScoreHeuristicStrategy} 
+  from 'strategies/heuristics/scoreheuristicstrategy.js';
+
+import {ExpectedPlaceablePieces} 
+  from 'strategies/heuristics/expected-placeable-pieces.js';
+
+import {NumPlaceable}
+  from 'strategies/heuristics/num-placeable.js';
 // ---------------------------------
 
 const StrategyConfigs = [
   // First element is default
+  new StrategyConfig(
+    'NP',
+    (hook: HTMLElement, debug: boolean) => 
+      new NumPlaceable(hook, debug),
+  ),
+
+  new StrategyConfig(
+    'EPP',
+    (hook: HTMLElement, debug: boolean) => 
+      new ExpectedPlaceablePieces(hook, debug),
+  ),
+
   new StrategyConfig(
     'Points',
     (hook: HTMLElement, debug: boolean) => 

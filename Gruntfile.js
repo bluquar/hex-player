@@ -15,7 +15,7 @@ module.exports = function(grunt) {
   	files: {},
   	watch: {
   		flow: {
-  			files: ['res/src/*.js'],
+  			files: ['res/src/*.js', 'res/src/*/*.js', 'res/src/*/*/*.js'],
   			tasks: ['flow']
   		}
   	}

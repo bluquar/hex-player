@@ -27,6 +27,22 @@ export class HeuristicStrategy extends Strategy {
     const scoredMoves = this._getScoredMoves(view);
     let explainDiv = makeDiv(['ai-heuristic-explain']);
     let table = document.createElement('table');
+
+    let headTR = document.createElement('tr');
+    let emptyTH = document.createElement('th');
+    let scoreTH = document.createElement('th');
+    scoreTH.appendChild(makeDiv(
+      null, null, 'Score',
+    ));
+    let boardTH = document.createElement('th');
+    boardTH.appendChild(makeDiv(
+      null, null, 'Board',
+    ));
+    headTR.appendChild(emptyTH);
+    headTR.appendChild(scoreTH);
+    headTR.appendChild(boardTH);
+    table.appendChild(headTR);
+
     scoredMoves.forEach((scoredMove, i) => {
       let expanded = i < ROWS_EXPANDED_BY_DEFAULT;
 

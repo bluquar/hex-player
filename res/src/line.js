@@ -101,8 +101,9 @@ export class Line {
     for (let point of this._points()) {
       const cell = board.getCellAt(point);
       if (!cell.isOccupied) {
-        cell.placeTile(colors[i++]);
+        cell.placeTile(colors[i]);
       }
+      i++;
     }
   }
 }

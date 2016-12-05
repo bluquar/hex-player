@@ -56,7 +56,22 @@ export class Move {
   }
 
   getScoreIncrease(): number {
-    return 0;
+    Assert(
+      this._linesAreCleared,
+      'getScoreIncrease called before clearLines',
+      () => this.log(),
+    );
+    let scoreIncrease = 0;
+    let lineLengths = this._lines.map(
+      line => line.colors.length
+    ).sort();
+    let lineCount = lineLengths.length;
+    
+    lineLengths.forEach((len, i) => {
+      scoreIncrease += 10 * len * (lineCount + 1) *
+        Math.max(1, Math.pow(i, 1.2))
+    });
+    return Math.floor(scoreIncrease);
   }
 
   setApplied(applied: boolean): void {

@@ -200,6 +200,7 @@ export class Board extends Renderable {
       scoreIncrease: number,
     ) => void,
   ): void {
+    
     const scoreIncrease = this.applyMove(move);
     callback(move, scoreIncrease);
     this.unApplyMove(move);

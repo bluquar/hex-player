@@ -3550,6 +3550,7 @@
 	  }, {
 	    key: 'withMoveApplied',
 	    value: function withMoveApplied(move, callback) {
+	
 	      var scoreIncrease = this.applyMove(move);
 	      callback(move, scoreIncrease);
 	      this.unApplyMove(move);
@@ -4012,7 +4013,21 @@
 	  }, {
 	    key: 'getScoreIncrease',
 	    value: function getScoreIncrease() {
-	      return 0;
+	      var _this3 = this;
+	
+	      (0, _debug.Assert)(this._linesAreCleared, 'getScoreIncrease called before clearLines', function () {
+	        return _this3.log();
+	      });
+	      var scoreIncrease = 0;
+	      var lineLengths = this._lines.map(function (line) {
+	        return line.colors.length;
+	      }).sort();
+	      var lineCount = lineLengths.length;
+	
+	      lineLengths.forEach(function (len, i) {
+	        scoreIncrease += 10 * len * (lineCount + 1) * Math.max(1, Math.pow(i, 1.2));
+	      });
+	      return Math.floor(scoreIncrease);
 	    }
 	  }, {
 	    key: 'setApplied',
@@ -5510,6 +5525,18 @@
 	      var scoredMoves = this._getScoredMoves(view);
 	      var explainDiv = (0, _domutils.makeDiv)(['ai-heuristic-explain']);
 	      var table = document.createElement('table');
+	
+	      var headTR = document.createElement('tr');
+	      var emptyTH = document.createElement('th');
+	      var scoreTH = document.createElement('th');
+	      scoreTH.appendChild((0, _domutils.makeDiv)(null, null, 'Score'));
+	      var boardTH = document.createElement('th');
+	      boardTH.appendChild((0, _domutils.makeDiv)(null, null, 'Board'));
+	      headTR.appendChild(emptyTH);
+	      headTR.appendChild(scoreTH);
+	      headTR.appendChild(boardTH);
+	      table.appendChild(headTR);
+	
 	      scoredMoves.forEach(function (scoredMove, i) {
 	        var expanded = i < ROWS_EXPANDED_BY_DEFAULT;
 	
@@ -5883,8 +5910,9 @@
 	
 	          var cell = board.getCellAt(point);
 	          if (!cell.isOccupied) {
-	            cell.placeTile(colors[i++]);
+	            cell.placeTile(colors[i]);
 	          }
+	          i++;
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;

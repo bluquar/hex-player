@@ -114,12 +114,35 @@
   color: #333;
 }
 
+.ai-heuristic-explain tr {
+  margin: 20px;
+}
+
 .ai-heuristic-explain tr.expanded {
   height: 100px;
 }
 
+.ai-heuristic-explain tr:nth-child(even) {
+  background-color: #777;
+}
+
+.ai-heuristic-explain tr:nth-child(odd) {
+  background-color: #999;
+}
+
+.ai-heuristic-explain td:nth-child(3) {
+  width: 235px;
+}
+
 .ai-heuristic-explain .collapsed .move {
   display: none;
+}
+
+.ai-heuristic-explain .expanded .move {
+  transform: scale(0.2, 0.2);
+  position: relative;
+  top: -50px;
+  left: -25px;
 }
 
 .ai-heuristic-explain .expanded .move .tray {
@@ -128,16 +151,12 @@
 
 .ai-heuristic-explain .expanded .move .board {
   position: relative;
-  transform: scale(0.2, 0.2);
-  top: -40px;
-  left: 10px;
 }
 
 .ai-heuristic-explain .expanded .move .score {
   position: relative;
-  transform: scale(0.2, 0.2);
-  top: -13px;
-  left: 45px;
+  top: 50px;
+  left: 220px;
   font-size: 3.4em;
 }
 
